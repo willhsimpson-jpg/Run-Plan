@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Run plan">
+<meta name="theme-color" content="#f3f6f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1513" media="(prefers-color-scheme: dark)">
+<title>Running plan</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%8F%83%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6f5;--sf:#ffffff;--sf2:#e9efed;--tx:#14201c;--mu:#5d6b66;--bd:#d6dfdc;--ac:#0e6e5c;--acs:#d9efe9;--lf:#4b4fc4;--lfs:#e6e7fa;--wn:#9a5b00;--wns:#fbefd9;--race:#c2185b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f1513;--sf:#18201d;--sf2:#212b27;--tx:#e7eeeb;--mu:#9aaaa4;--bd:#2c3833;--ac:#4fc9ae;--acs:#173a32;--lf:#9ea2ff;--lfs:#25264a;--wn:#f0b45a;--wns:#3a2c14;--race:#ff7aa8;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1513;--sf:#18201d;--sf2:#212b27;--tx:#e7eeeb;--mu:#9aaaa4;--bd:#2c3833;--ac:#4fc9ae;--acs:#173a32;--lf:#9ea2ff;--lfs:#25264a;--wn:#f0b45a;--wns:#3a2c14;--race:#ff7aa8;color-scheme:dark}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Barlow,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+.cd{font-family:"Barlow Condensed","Arial Narrow",Barlow,sans-serif}
+.wrap{max-width:620px;margin:0 auto;padding:14px 16px 56px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:6px}
+
+/* header */
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+h1{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:34px;line-height:1;margin:6px 0 0;letter-spacing:-.01em}
+#st{font-size:13px;color:var(--mu);white-space:nowrap}
+#st::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mu);margin-right:6px;vertical-align:1px}
+#st.ok::before{background:var(--ac)}
+.race{margin:6px 0 16px;color:var(--mu);font-size:15px}
+.race b{color:var(--race);font-weight:600}
+
+/* season strip */
+.season{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:14px 14px 10px;margin-bottom:14px}
+.shead{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--mu);margin-bottom:8px}
+.strip{display:flex;align-items:flex-end;gap:2px;height:72px}
+.strip button{flex:1;min-width:0;height:var(--h);padding:0;border:0;border-radius:2px;background:var(--sf2);position:relative;overflow:hidden}
+.strip button>i{position:absolute;left:0;right:0;bottom:0;height:var(--f);background:var(--ac)}
+.strip button.cut{opacity:.75}
+.strip button.racewk{background:color-mix(in srgb,var(--race) 25%,var(--sf2))}
+.strip button.racewk>i{background:var(--race)}
+.strip button.cur{outline:2px solid var(--tx);outline-offset:1px}
+.strip button.sel{box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--ac)}
+.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-top:6px}
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--bd)}
+.num .v{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:28px;line-height:1.05}
+.num .v small{font-size:14px;font-weight:500;color:var(--mu);margin-left:2px}
+.num .l{font-size:12px;color:var(--mu)}
+
+/* today */
+.today{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:12px 14px 4px;margin-bottom:14px}
+.today h2,.sec h2{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:22px;font-weight:600;margin:0}
+.today .sub{font-size:13px;color:var(--mu);margin:0 0 4px}
+.empty{color:var(--mu);font-size:14px;padding:10px 0 12px}
+
+/* items */
+.it{display:grid;grid-template-columns:30px 1fr auto;gap:4px 10px;align-items:start;padding:12px 0;border-top:1px solid var(--bd)}
+.it:first-child{border-top:0}
+.cb{appearance:none;-webkit-appearance:none;width:26px;height:26px;margin:1px 0 0;border:2px solid var(--bd);border-radius:8px;background:var(--sf);display:grid;place-items:center;cursor:pointer;transition:background .12s,border-color .12s}
+.cb::after{content:"";width:12px;height:7px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px);opacity:0}
+.cb:checked{background:var(--ac);border-color:var(--ac)}
+.cb:checked::after{opacity:1}
+.it.lift .cb:checked{background:var(--lf);border-color:var(--lf)}
+.it .t{font-weight:600;line-height:1.3}
+.it .k{display:inline-block;font-size:12px;font-weight:500;padding:1px 7px;border-radius:6px;margin-right:6px;vertical-align:1px;background:var(--acs);color:var(--ac)}
+.it.lift .k{background:var(--lfs);color:var(--lf)}
+.it.racei .k{background:color-mix(in srgb,var(--race) 18%,transparent);color:var(--race)}
+.it .d{grid-column:2/4;font-size:14px;color:var(--mu)}
+.it .mi{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:17px;font-weight:600;white-space:nowrap;color:var(--mu)}
+.it.on .t,.it.on .d{opacity:.5}
+.it.on .t{text-decoration:line-through;text-decoration-thickness:1.5px}
+.ex{grid-column:2/4;display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.ex span{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--sf2);color:var(--mu)}
+.it.on .ex{opacity:.5}
+.lbl{display:contents;cursor:pointer}
+
+/* week */
+.sec{margin-top:6px}
+.pager{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top,0px) + 8px) 0 8px;margin:0 -16px;padding-left:16px;padding-right:16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid transparent}
+.pager.stuck{border-bottom-color:var(--bd)}
+.pager .mid{flex:1;min-width:0;text-align:center}
+.pager .wn{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:24px;font-weight:700;line-height:1.1}
+.pager .wr{font-size:13px;color:var(--mu)}
+.nav{width:44px;height:44px;border-radius:12px;border:1px solid var(--bd);background:var(--sf);font-size:22px;line-height:1;display:grid;place-items:center;flex:none}
+.nav:disabled{opacity:.35}
+.wsum{display:flex;align-items:center;gap:12px;margin:10px 0 8px;font-size:14px;color:var(--mu)}
+.bar{flex:1;height:8px;border-radius:4px;background:var(--sf2);overflow:hidden}
+.bar>i{display:block;height:100%;width:0;background:var(--ac);transition:width .25s}
+.badge{font-size:13px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--acs);color:var(--ac);white-space:nowrap}
+.badge.lo{background:var(--sf2);color:var(--mu)}
+.badge.full{background:var(--ac);color:var(--bg)}
+.zones{display:flex;gap:8px;margin:0 0 10px}
+.zone{flex:1;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:8px 12px}
+.zone .l{font-size:12px;color:var(--mu)}
+.zone .v{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:20px;font-weight:600}
+.note{font-size:14px;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:var(--acs);border-left:3px solid var(--ac)}
+.note.racen{background:color-mix(in srgb,var(--race) 12%,var(--sf));border-left-color:var(--race)}
+.days{background:var(--sf);border:1px solid var(--bd);border-radius:16px;overflow:hidden}
+.day{padding:4px 14px 2px;border-top:1px solid var(--bd)}
+.day:first-child{border-top:0}
+.day.now{background:color-mix(in srgb,var(--ac) 7%,var(--sf))}
+.dh{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0 0;font-size:13px;color:var(--mu)}
+.dh b{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:18px;font-weight:600;color:var(--tx);margin-right:6px}
+.day.now .dh::after{content:"Today";font-size:12px;font-weight:600;color:var(--ac)}
+.rest{font-size:14px;color:var(--mu);padding:6px 0 12px}
+
+/* checkpoint */
+.ck{margin-top:12px;background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:12px 14px}
+.ck h3{font-size:16px;margin:0 0 2px}
+.ck p{font-size:13px;color:var(--mu);margin:0 0 10px}
+.ckf{display:flex;gap:10px;flex-wrap:wrap}
+.ckf label{flex:1;min-width:120px;font-size:12px;color:var(--mu)}
+.ckf input{display:block;width:100%;margin-top:4px;padding:10px 12px;font-size:17px;border:1px solid var(--bd);border-radius:10px;background:var(--bg)}
+.ckr{font-size:14px;margin-top:10px}
+.ckr.bad{color:var(--wn)}
+.warn{margin:0 0 14px;padding:10px 12px;border-radius:12px;background:var(--wns);color:var(--tx);font-size:14px;border-left:3px solid var(--wn)}
+.hist{margin-top:10px;font-size:13px;color:var(--mu)}
+.hist table{width:100%;border-collapse:collapse}
+.hist td,.hist th{text-align:left;padding:5px 4px;border-top:1px solid var(--bd);font-weight:400}
+.hist th{color:var(--mu);font-size:12px}
+
+/* notes + footer */
+details.info{margin-top:14px;background:var(--sf);border:1px solid var(--bd);border-radius:16px}
+details.info summary{list-style:none;cursor:pointer;padding:14px;font-weight:600;display:flex;justify-content:space-between;min-height:48px;align-items:center}
+details.info summary::-webkit-details-marker{display:none}
+details.info summary::after{content:"+";font-size:20px;color:var(--mu)}
+details.info[open] summary::after{content:"\2212"}
+details.info .b{padding:0 14px 6px;font-size:14px;color:var(--mu)}
+details.info .b p{margin:0 0 10px}
+.foot{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{min-height:44px;padding:10px 16px;border-radius:12px;border:1px solid var(--bd);background:var(--sf);font-size:15px}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:var(--bg);font-weight:600}
+.btn.danger.arm{border-color:var(--wn);color:var(--wn)}
+#code{display:block;width:100%;margin:10px 0 0;padding:10px 12px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);resize:vertical;word-break:break-all}
+.hint{font-size:13px;color:var(--mu);margin-top:10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style></head>
+<body><div class="wrap">
+<div class="top"><h1>Running plan</h1><span id="st" class="ok">Saved on this device</span></div>
+<p class="race" id="race"></p>
+
+<section class="season" aria-label="Season overview">
+  <div class="shead"><span>Season · bar height is planned miles, fill is score</span></div>
+  <div class="strip" id="strip"></div>
+  <div class="axis" id="axis"></div>
+  <div class="nums">
+    <div class="num"><div class="v" id="nw">0</div><div class="l">This week's score</div></div>
+    <div class="num"><div class="v" id="na">0</div><div class="l">Average score</div></div>
+    <div class="num"><div class="v" id="nm">0</div><div class="l">Miles logged</div></div>
+  </div>
+</section>
+
+<div id="warn"></div>
+
+<section class="today" aria-label="Today">
+  <h2 id="th">Today</h2>
+  <p class="sub" id="ts"></p>
+  <div id="tl"></div>
+</section>
+
+<section class="sec" aria-label="Week">
+  <div class="pager" id="pager">
+    <button class="nav" id="prev" aria-label="Previous week">&#8249;</button>
+    <div class="mid"><div class="wn" id="wn"></div><div class="wr" id="wr"></div></div>
+    <button class="nav" id="next" aria-label="Next week">&#8250;</button>
+  </div>
+  <div id="week"></div>
+</section>
+
+<details class="info"><summary>How the plan works</summary><div class="b">
+<p>Week 0 (Oct 11–17) is a lead-in before the plan starts on Oct 18.</p>
+<p>Race: half marathon on Saturday, April 3, 2027 (week 24). Predicted finish about 1:40 (7:38/mi), range 1:37 to 1:44. Weeks 21–22 add half-pace work to the long run, week 23 is the taper, week 24 is race week, and week 25 is recovery.</p>
+<p>Four runs a week through week 26: Mon and Tue easy, Thu workout, Sat long run. Easy runs build from 45 to 60 min, the long run from 75 min to 2 hours. Strides after easy runs aren't listed since you already do them.</p>
+<p>From week 27 (Apr 18, 2027) Monday becomes a second workout and Friday adds a 60 min easy run. Weekly miles stay under the 50 mile cap (peak 49.7). Every workout has a 2 mile warmup and 2 mile cooldown at easy pace.</p>
+<p>Lifting follows your split: Sun legs, Mon push, Tue pull, Wed legs, Thu push, Fri pull, Sat rest. Each lift is one checkbox with the exercises shown under it.</p>
+<p>Weekly score = points earned ÷ points available that week. Workouts and the long run are 3 points, easy runs 2, lifts 2, and the race 5. A score of 90+ is a full week. The average only counts weeks where you've checked at least one item.</p>
+<p>Every 4th week is a cutback with a zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace in that week's checkpoint box. Paces are predictions. If you're 10+ sec/mi slower than the slow end of the predicted zone-2 range on two checkpoints in a row, repeat the last 4 weeks before moving on. Run hard days by effort if the pace is off.</p>
+<p>Sunday is legs, so a hard Monday run follows a leg day, and Wednesday legs sit before Thursday's workout. Swap days if it feels like too much.</p>
+</div></details>
+
+<div class="foot">
+  <button class="btn" id="cur">Go to this week</button>
+  <button class="btn danger" id="rst">Reset all progress</button>
+</div>
+<details class="info" id="bk"><summary>Back up or restore progress</summary><div class="b">
+<p>Progress is stored in this browser only. Copy a backup code now and then, and keep it somewhere safe (a note or an email to yourself). Paste it here on any device to restore.</p>
+<div class="foot" style="margin-top:0"><button class="btn pri" id="exp">Copy backup code</button><button class="btn" id="imp">Restore from code</button></div>
+<textarea id="code" rows="4" placeholder="Backup code appears here, or paste one to restore" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+<p id="bkm" class="ckr" role="status"></p>
+</div></details>
+<p class="hint">Saved in this browser on this device. Clearing website data erases it, so keep a recent backup code.</p>
+</div>
+<script>
+const WEEKS=[{"n": 0, "start": "2026-10-11", "end": "2026-10-17", "z2": "10:20\u201310:40", "tz": "8:21\u20138:39", "total": 21.9, "cut": false, "label": "lead-in", "note": "Lead-in week before the plan starts on Oct 18. Mon and Tue runs and Tuesday's pull are already logged.", "runs": [{"day": "Mon", "title": "Easy 45 min", "detail": "10:20\u201310:40 /mi", "mi": 4.3}, {"day": "Tue", "title": "Easy 45 min", "detail": "10:20\u201310:40 /mi", "mi": 4.3}, {"day": "Thu", "title": "Speed", "detail": "WU 2 mi \u00b7 4\u00d7400 @ 1:48\u20131:53 \u2192 2\u00d7200 @ 0:58 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 6.0}, {"day": "Sat", "title": "Long run 75 min", "detail": "Upper Z2 / low Z3 \u00b7 ~10:20 /mi", "mi": 7.3}], "five": false}, {"n": 1, "start": "2026-10-18", "end": "2026-10-24", "z2": "10:20\u201310:40", "tz": "8:21\u20138:39", "total": 22.0, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 45 min", "detail": "10:20\u201310:40 /mi", "mi": 4.3}, {"day": "Tue", "title": "Easy 45 min", "detail": "10:20\u201310:40 /mi", "mi": 4.3}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 2\u00d71 mi @ 8:30\u20138:34 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 6.2}, {"day": "Sat", "title": "Long run 75 min", "detail": "Upper Z2 / low Z3 \u00b7 ~10:20 /mi", "mi": 7.3}], "five": false}, {"n": 2, "start": "2026-10-25", "end": "2026-10-31", "z2": "10:15\u201310:35", "tz": "8:17\u20138:34", "total": 22.4, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 45 min", "detail": "10:15\u201310:35 /mi", "mi": 4.3}, {"day": "Tue", "title": "Easy 45 min", "detail": "10:15\u201310:35 /mi", "mi": 4.3}, {"day": "Thu", "title": "Speed", "detail": "WU 2 mi \u00b7 4\u00d7400 @ 1:47\u20131:51 \u2192 2\u00d7200 @ 0:58 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 6.0}, {"day": "Sat", "title": "Long run 80 min", "detail": "Upper Z2 / low Z3 \u00b7 ~10:15 /mi", "mi": 7.8}], "five": false}, {"n": 3, "start": "2026-11-01", "end": "2026-11-07", "z2": "10:15\u201310:35", "tz": "8:13\u20138:30", "total": 24.7, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "10:15\u201310:35 /mi", "mi": 4.8}, {"day": "Tue", "title": "Easy 50 min", "detail": "10:15\u201310:35 /mi", "mi": 4.8}, {"day": "Thu", "title": "Threshold", "detail": "WU 2 mi \u00b7 4\u00d71000 @ 5:07\u20135:12 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 6.8}, {"day": "Sat", "title": "Long run 85 min", "detail": "Upper Z2 / low Z3 \u00b7 ~10:15 /mi", "mi": 8.3}], "five": false}, {"n": 4, "start": "2026-11-08", "end": "2026-11-14", "z2": "10:10\u201310:30", "tz": "8:08\u20138:26", "total": 19.0, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 40 min", "detail": "10:10\u201310:30 /mi", "mi": 3.9}, {"day": "Tue", "title": "Easy 40 min", "detail": "10:10\u201310:30 /mi", "mi": 3.9}, {"day": "Thu", "title": "Easy 45 min", "detail": "10:10\u201310:30 /mi", "mi": 4.4}, {"day": "Sat", "title": "Long run 70 min", "detail": "Upper Z2 / low Z3 \u00b7 ~10:10 /mi", "mi": 6.9}], "five": false}, {"n": 5, "start": "2026-11-15", "end": "2026-11-21", "z2": "10:05\u201310:25", "tz": "8:04\u20138:22", "total": 24.5, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "10:05\u201310:25 /mi", "mi": 4.9}, {"day": "Tue", "title": "Easy 50 min", "detail": "10:05\u201310:25 /mi", "mi": 4.9}, {"day": "Thu", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 3\u00d7800 @ 3:31\u20133:40 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 5.9}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~10:05 /mi", "mi": 8.9}], "five": false}, {"n": 6, "start": "2026-11-22", "end": "2026-11-28", "z2": "10:00\u201310:20", "tz": "8:00\u20138:17", "total": 28.3, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 55 min", "detail": "10:00\u201310:20 /mi", "mi": 5.4}, {"day": "Tue", "title": "Easy 55 min", "detail": "10:00\u201310:20 /mi", "mi": 5.4}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 4 mi @ 8:17\u20138:26 /mi \u00b7 CD 2 mi", "mi": 8.0}, {"day": "Sat", "title": "Long run 95 min", "detail": "Upper Z2 / low Z3 \u00b7 ~10:00 /mi", "mi": 9.5}], "five": false}, {"n": 7, "start": "2026-11-29", "end": "2026-12-05", "z2": "10:00\u201310:20", "tz": "7:56\u20138:13", "total": 28.8, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 55 min", "detail": "10:00\u201310:20 /mi", "mi": 5.4}, {"day": "Tue", "title": "Easy 55 min", "detail": "10:00\u201310:20 /mi", "mi": 5.4}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d73k @ 8:00\u20138:04 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 8.0}, {"day": "Sat", "title": "Long run 100 min", "detail": "Upper Z2 / low Z3 \u00b7 ~10:00 /mi", "mi": 10.0}], "five": false}, {"n": 8, "start": "2026-12-06", "end": "2026-12-12", "z2": "9:55\u201310:15", "tz": "7:52\u20138:09", "total": 22.4, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "9:55\u201310:15 /mi", "mi": 5.0}, {"day": "Tue", "title": "Easy 50 min", "detail": "9:55\u201310:15 /mi", "mi": 5.0}, {"day": "Thu", "title": "Easy 45 min", "detail": "9:55\u201310:15 /mi", "mi": 4.5}, {"day": "Sat", "title": "Long run 80 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:55 /mi", "mi": 8.1}], "five": false}, {"n": 9, "start": "2026-12-13", "end": "2026-12-19", "z2": "9:50\u201310:10", "tz": "7:47\u20138:05", "total": 31.1, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:50\u201310:10 /mi", "mi": 6.0}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:50\u201310:10 /mi", "mi": 6.0}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 4\u00d71 mi @ 7:56\u20138:01 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 8.4}, {"day": "Sat", "title": "Long run 105 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:50 /mi", "mi": 10.7}], "five": false}, {"n": 10, "start": "2026-12-20", "end": "2026-12-26", "z2": "9:50\u201310:10", "tz": "7:43\u20138:01", "total": 29.5, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:50\u201310:10 /mi", "mi": 6.0}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:50\u201310:10 /mi", "mi": 6.0}, {"day": "Thu", "title": "Speed", "detail": "WU 2 mi \u00b7 5\u00d7400 @ 1:38\u20131:42 \u2192 2\u00d7200 @ 0:53 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 6.3}, {"day": "Sat", "title": "Long run 110 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:50 /mi", "mi": 11.2}], "five": false}, {"n": 11, "start": "2026-12-27", "end": "2027-01-02", "z2": "9:45\u201310:05", "tz": "7:39\u20137:57", "total": 31.4, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:45\u201310:05 /mi", "mi": 6.1}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:45\u201310:05 /mi", "mi": 6.1}, {"day": "Thu", "title": "Threshold", "detail": "WU 2 mi \u00b7 5\u00d71000 @ 4:47\u20134:51 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 7.5}, {"day": "Sat", "title": "Long run 115 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:45 /mi", "mi": 11.8}], "five": false}, {"n": 12, "start": "2027-01-03", "end": "2027-01-09", "z2": "9:40\u201310:00", "tz": "7:35\u20137:53", "total": 24.1, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "9:40\u201310:00 /mi", "mi": 5.1}, {"day": "Tue", "title": "Easy 50 min", "detail": "9:40\u201310:00 /mi", "mi": 5.1}, {"day": "Thu", "title": "Easy 45 min", "detail": "9:40\u201310:00 /mi", "mi": 4.6}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:40 /mi", "mi": 9.3}], "five": false}, {"n": 13, "start": "2027-01-10", "end": "2027-01-16", "z2": "9:40\u201310:00", "tz": "7:31\u20137:50", "total": 31.1, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:40\u201310:00 /mi", "mi": 6.1}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:40\u201310:00 /mi", "mi": 6.1}, {"day": "Thu", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 4\u00d7800 @ 3:14\u20133:23 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 6.5}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:40 /mi", "mi": 12.4}], "five": false}, {"n": 14, "start": "2027-01-17", "end": "2027-01-23", "z2": "9:35\u20139:55", "tz": "7:28\u20137:46", "total": 34.8, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:35\u20139:55 /mi", "mi": 6.2}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:35\u20139:55 /mi", "mi": 6.2}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 6 mi @ 7:46\u20137:55 /mi \u00b7 CD 2 mi", "mi": 10.0}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:35 /mi", "mi": 12.5}], "five": false}, {"n": 15, "start": "2027-01-24", "end": "2027-01-30", "z2": "9:30\u20139:50", "tz": "7:24\u20137:42", "total": 34.3, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:30\u20139:50 /mi", "mi": 6.2}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:30\u20139:50 /mi", "mi": 6.2}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d74k @ 7:28\u20137:33 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 9.3}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:30 /mi", "mi": 12.6}], "five": false}, {"n": 16, "start": "2027-01-31", "end": "2027-02-06", "z2": "9:30\u20139:50", "tz": "7:20\u20137:38", "total": 24.5, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "9:30\u20139:50 /mi", "mi": 5.2}, {"day": "Tue", "title": "Easy 50 min", "detail": "9:30\u20139:50 /mi", "mi": 5.2}, {"day": "Thu", "title": "Easy 45 min", "detail": "9:30\u20139:50 /mi", "mi": 4.7}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:30 /mi", "mi": 9.5}], "five": false}, {"n": 17, "start": "2027-02-07", "end": "2027-02-13", "z2": "9:25\u20139:45", "tz": "7:16\u20137:35", "total": 34.8, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:25\u20139:45 /mi", "mi": 6.3}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:25\u20139:45 /mi", "mi": 6.3}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 5\u00d71 mi @ 7:25\u20137:30 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 9.5}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:25 /mi", "mi": 12.7}], "five": false}, {"n": 18, "start": "2027-02-14", "end": "2027-02-20", "z2": "9:20\u20139:40", "tz": "7:13\u20137:31", "total": 32.8, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:20\u20139:40 /mi", "mi": 6.3}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:20\u20139:40 /mi", "mi": 6.3}, {"day": "Thu", "title": "Speed", "detail": "WU 2 mi \u00b7 7\u00d7400 @ 1:30\u20131:34 \u2192 3\u00d7200 @ 0:49 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.3}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:20 /mi", "mi": 12.9}], "five": false}, {"n": 19, "start": "2027-02-21", "end": "2027-02-27", "z2": "9:20\u20139:40", "tz": "7:09\u20137:27", "total": 34.3, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:20\u20139:40 /mi", "mi": 6.3}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:20\u20139:40 /mi", "mi": 6.3}, {"day": "Thu", "title": "Threshold", "detail": "WU 2 mi \u00b7 7\u00d71000 @ 4:28\u20134:32 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 8.8}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:20 /mi", "mi": 12.9}], "five": false}, {"n": 20, "start": "2027-02-28", "end": "2027-03-06", "z2": "9:15\u20139:35", "tz": "7:05\u20137:24", "total": 25.1, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "9:15\u20139:35 /mi", "mi": 5.3}, {"day": "Tue", "title": "Easy 50 min", "detail": "9:15\u20139:35 /mi", "mi": 5.3}, {"day": "Thu", "title": "Easy 45 min", "detail": "9:15\u20139:35 /mi", "mi": 4.8}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:15 /mi", "mi": 9.7}], "five": false}, {"n": 21, "start": "2027-03-07", "end": "2027-03-13", "z2": "9:10\u20139:30", "tz": "7:02\u20137:20", "total": 33.0, "cut": false, "note": "Race build. The last part of the long run is at your half marathon goal pace.", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:10\u20139:30 /mi", "mi": 6.4}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:10\u20139:30 /mi", "mi": 6.4}, {"day": "Thu", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 5\u00d7800 @ 2:58\u20133:07 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.1}, {"day": "Sat", "title": "Long run 120 min", "detail": "Last 20 min at half marathon pace (7:35\u20137:45 /mi) \u00b7 ~9:10 /mi easy part", "mi": 13.1}], "five": false, "label": "peak"}, {"n": 22, "start": "2027-03-14", "end": "2027-03-20", "z2": "9:10\u20139:30", "tz": "6:58\u20137:17", "total": 37.4, "cut": false, "note": "Race build. The last part of the long run is at your half marathon goal pace.", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:10\u20139:30 /mi", "mi": 6.4}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:10\u20139:30 /mi", "mi": 6.4}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 7.5 mi @ 7:17\u20137:26 /mi \u00b7 CD 2 mi", "mi": 11.5}, {"day": "Sat", "title": "Long run 120 min", "detail": "Last 30 min at half marathon pace (7:35\u20137:45 /mi), dress rehearsal \u00b7 ~9:10 /mi easy part", "mi": 13.1}], "five": false, "label": "peak"}, {"n": 23, "start": "2027-03-21", "end": "2027-03-27", "z2": "9:05\u20139:25", "tz": "6:55\u20137:14", "total": 27.0, "cut": true, "note": "Taper starts. Less volume, keep a little pace.", "runs": [{"day": "Mon", "title": "Easy 45 min", "detail": "9:05\u20139:25 /mi", "mi": 4.9}, {"day": "Tue", "title": "Easy 45 min", "detail": "9:05\u20139:25 /mi", "mi": 4.9}, {"day": "Thu", "title": "Half-pace work", "detail": "WU 2 mi \u00b7 3\u00d71 mi @ 7:35\u20137:45 /mi \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.3}, {"day": "Sat", "title": "Long run 90 min", "detail": "Easy, no pace work \u00b7 ~9:05 /mi easy part", "mi": 9.9}], "five": false, "label": "taper", "lifts": {"Wed": ["Legs (light)", "1 set per exercise, no failure, skip heavy squats and stiff-leg deadlifts"]}}, {"n": 24, "start": "2027-03-28", "end": "2027-04-03", "z2": "9:05\u20139:25", "tz": "6:51\u20137:10", "total": 27.0, "cut": true, "note": "Race week. The half marathon is Saturday, April 3. No Friday run.", "runs": [{"day": "Mon", "title": "Easy 40 min", "detail": "9:05\u20139:25 /mi", "mi": 4.3}, {"day": "Tue", "title": "Easy 30 min", "detail": "9:05\u20139:25 /mi", "mi": 3.2}, {"day": "Thu", "title": "Race-pace opener", "detail": "WU 2 mi \u00b7 2\u00d71 mi @ 7:35\u20137:45 /mi \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 6.4}, {"day": "Sat", "title": "RACE: Half marathon", "detail": "Goal about 1:40 (~7:38 /mi). First 3 miles at 7:45\u20137:50, settle to 7:35\u20137:40, push the last 3 if you feel good.", "mi": 13.1}], "five": false, "label": "race week", "lifts": {"Sun": ["Legs (light)", "1 set per exercise, no failure"], "Wed": ["Legs (light)", "1 set per exercise, no failure, skip heavy squats and stiff-leg deadlifts"], "Fri": ["Pull (light)", "1\u20132 sets per exercise, stop well short of failure"]}}, {"n": 25, "start": "2027-04-04", "end": "2027-04-10", "z2": "9:00\u20139:20", "tz": "6:48\u20137:07", "total": 19.1, "cut": true, "note": "Recovery week after the race. Easy runs only, no workouts.", "runs": [{"day": "Mon", "title": "Easy 30 min", "detail": "9:00\u20139:20 /mi", "mi": 3.3}, {"day": "Tue", "title": "Easy 40 min", "detail": "9:00\u20139:20 /mi", "mi": 4.4}, {"day": "Thu", "title": "Easy 45 min", "detail": "9:00\u20139:20 /mi", "mi": 4.9}, {"day": "Sat", "title": "Easy 60 min", "detail": "9:00\u20139:20 /mi", "mi": 6.5}], "five": false, "label": "recovery", "lifts": {"Sun": ["Legs (light)", "Skip if your legs are sore, otherwise 1 set per exercise"], "Wed": ["Legs (light)", "1\u20132 sets per exercise, no failure"]}}, {"n": 26, "start": "2027-04-11", "end": "2027-04-17", "z2": "9:00\u20139:20", "tz": "6:45\u20137:04", "total": 34.4, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Easy 60 min", "detail": "9:00\u20139:20 /mi", "mi": 6.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "9:00\u20139:20 /mi", "mi": 6.5}, {"day": "Thu", "title": "Speed", "detail": "WU 2 mi \u00b7 8\u00d7400 @ 1:22\u20131:27 \u2192 4\u00d7200 @ 0:46 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.9}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~9:00 /mi", "mi": 13.3}], "five": false}, {"n": 27, "start": "2027-04-18", "end": "2027-04-24", "z2": "8:55\u20139:15", "tz": "6:41\u20137:01", "total": 43.6, "cut": false, "note": "5th run starts: Monday workout + Friday 60 min easy run (two workouts a week).", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 5\u00d7400 @ 1:21\u20131:26 \u2192 2\u00d7200 @ 0:45 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 6.3}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:55\u20139:15 /mi", "mi": 6.6}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:51\u20136:56 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:55\u20139:15 /mi", "mi": 6.6}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:55 /mi", "mi": 13.5}], "five": true}, {"n": 28, "start": "2027-04-25", "end": "2027-05-01", "z2": "8:50\u20139:10", "tz": "6:38\u20136:57", "total": 31.9, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "8:50\u20139:10 /mi", "mi": 5.6}, {"day": "Tue", "title": "Easy 50 min", "detail": "8:50\u20139:10 /mi", "mi": 5.6}, {"day": "Thu", "title": "Easy 45 min", "detail": "8:50\u20139:10 /mi", "mi": 5.0}, {"day": "Fri", "title": "Easy 50 min", "detail": "8:50\u20139:10 /mi", "mi": 5.6}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:50 /mi", "mi": 10.2}], "five": true}, {"n": 29, "start": "2027-05-02", "end": "2027-05-08", "z2": "8:50\u20139:10", "tz": "6:35\u20136:54", "total": 45.4, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 4\u00d7800 @ 2:44\u20132:53 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 6.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:50\u20139:10 /mi", "mi": 6.7}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:54\u20137:04 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:50\u20139:10 /mi", "mi": 6.7}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:50 /mi", "mi": 13.6}], "five": true}, {"n": 30, "start": "2027-05-09", "end": "2027-05-15", "z2": "8:45\u20139:05", "tz": "6:32\u20136:51", "total": 45.8, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Threshold", "detail": "WU 2 mi \u00b7 6\u00d71000 @ 4:05\u20134:10 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 8.1}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:45\u20139:05 /mi", "mi": 6.7}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d75k @ 6:37\u20136:42 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 10.5}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:45\u20139:05 /mi", "mi": 6.7}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:45 /mi", "mi": 13.7}], "five": true}, {"n": 31, "start": "2027-05-16", "end": "2027-05-22", "z2": "8:45\u20139:05", "tz": "6:29\u20136:48", "total": 45.1, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 7\u00d7400 @ 1:18\u20131:23 \u2192 3\u00d7200 @ 0:44 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.3}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:45\u20139:05 /mi", "mi": 6.7}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:39\u20136:43 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:45\u20139:05 /mi", "mi": 6.7}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:45 /mi", "mi": 13.7}], "five": true}, {"n": 32, "start": "2027-05-23", "end": "2027-05-29", "z2": "8:40\u20139:00", "tz": "6:26\u20136:45", "total": 32.5, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "8:40\u20139:00 /mi", "mi": 5.7}, {"day": "Tue", "title": "Easy 50 min", "detail": "8:40\u20139:00 /mi", "mi": 5.7}, {"day": "Thu", "title": "Easy 45 min", "detail": "8:40\u20139:00 /mi", "mi": 5.1}, {"day": "Fri", "title": "Easy 50 min", "detail": "8:40\u20139:00 /mi", "mi": 5.7}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:40 /mi", "mi": 10.4}], "five": true}, {"n": 33, "start": "2027-05-30", "end": "2027-06-05", "z2": "8:40\u20139:00", "tz": "6:23\u20136:42", "total": 47.2, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 6\u00d7800 @ 2:37\u20132:47 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.7}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:40\u20139:00 /mi", "mi": 6.8}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:42\u20136:52 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:40\u20139:00 /mi", "mi": 6.8}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:40 /mi", "mi": 13.8}], "five": true}, {"n": 34, "start": "2027-06-06", "end": "2027-06-12", "z2": "8:35\u20138:55", "tz": "6:20\u20136:40", "total": 47.7, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Threshold", "detail": "WU 2 mi \u00b7 8\u00d71000 @ 3:57\u20134:02 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 9.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:35\u20138:55 /mi", "mi": 6.9}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d75k @ 6:25\u20136:30 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 10.5}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:35\u20138:55 /mi", "mi": 6.9}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:35 /mi", "mi": 14.0}], "five": true}, {"n": 35, "start": "2027-06-13", "end": "2027-06-19", "z2": "8:35\u20138:55", "tz": "6:17\u20136:37", "total": 46.2, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 8\u00d7400 @ 1:15\u20131:20 \u2192 4\u00d7200 @ 0:42 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.9}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:35\u20138:55 /mi", "mi": 6.9}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:27\u20136:32 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:35\u20138:55 /mi", "mi": 6.9}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:35 /mi", "mi": 14.0}], "five": true}, {"n": 36, "start": "2027-06-20", "end": "2027-06-26", "z2": "8:30\u20138:50", "tz": "6:14\u20136:34", "total": 33.1, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "8:30\u20138:50 /mi", "mi": 5.8}, {"day": "Tue", "title": "Easy 50 min", "detail": "8:30\u20138:50 /mi", "mi": 5.8}, {"day": "Thu", "title": "Easy 45 min", "detail": "8:30\u20138:50 /mi", "mi": 5.2}, {"day": "Fri", "title": "Easy 50 min", "detail": "8:30\u20138:50 /mi", "mi": 5.8}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:30 /mi", "mi": 10.6}], "five": true}, {"n": 37, "start": "2027-06-27", "end": "2027-07-03", "z2": "8:30\u20138:50", "tz": "6:12\u20136:32", "total": 47.7, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 6\u00d7800 @ 2:31\u20132:41 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.7}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:30\u20138:50 /mi", "mi": 6.9}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:32\u20136:41 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:30\u20138:50 /mi", "mi": 6.9}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:30 /mi", "mi": 14.1}], "five": true}, {"n": 38, "start": "2027-07-04", "end": "2027-07-10", "z2": "8:30\u20138:50", "tz": "6:09\u20136:29", "total": 48.0, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Threshold", "detail": "WU 2 mi \u00b7 8\u00d71000 @ 3:51\u20133:56 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 9.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:30\u20138:50 /mi", "mi": 6.9}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d75k @ 6:14\u20136:19 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 10.5}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:30\u20138:50 /mi", "mi": 6.9}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:30 /mi", "mi": 14.1}], "five": true}, {"n": 39, "start": "2027-07-11", "end": "2027-07-17", "z2": "8:25\u20138:45", "tz": "6:06\u20136:26", "total": 46.8, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 8\u00d7400 @ 1:12\u20131:17 \u2192 4\u00d7200 @ 0:41 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.9}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:25\u20138:45 /mi", "mi": 7.0}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:16\u20136:21 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:25\u20138:45 /mi", "mi": 7.0}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:25 /mi", "mi": 14.3}], "five": true}, {"n": 40, "start": "2027-07-18", "end": "2027-07-24", "z2": "8:25\u20138:45", "tz": "6:04\u20136:24", "total": 33.4, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "8:25\u20138:45 /mi", "mi": 5.8}, {"day": "Tue", "title": "Easy 50 min", "detail": "8:25\u20138:45 /mi", "mi": 5.8}, {"day": "Thu", "title": "Easy 45 min", "detail": "8:25\u20138:45 /mi", "mi": 5.2}, {"day": "Fri", "title": "Easy 50 min", "detail": "8:25\u20138:45 /mi", "mi": 5.8}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:25 /mi", "mi": 10.7}], "five": true}, {"n": 41, "start": "2027-07-25", "end": "2027-07-31", "z2": "8:20\u20138:40", "tz": "6:01\u20136:21", "total": 48.2, "cut": false, "note": "Workout paces now match your original sub-1:20 list.", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 6\u00d7800 @ 2:26\u20132:36 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.7}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:20\u20138:40 /mi", "mi": 7.1}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:21\u20136:31 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:20\u20138:40 /mi", "mi": 7.1}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:20 /mi", "mi": 14.4}], "five": true}, {"n": 42, "start": "2027-08-01", "end": "2027-08-07", "z2": "8:20\u20138:40", "tz": "6:00\u20136:20", "total": 48.6, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Threshold", "detail": "WU 2 mi \u00b7 8\u00d71000 @ 3:45\u20133:50 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 9.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:20\u20138:40 /mi", "mi": 7.1}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d75k @ 6:05\u20136:10 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 10.5}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:20\u20138:40 /mi", "mi": 7.1}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:20 /mi", "mi": 14.4}], "five": true}, {"n": 43, "start": "2027-08-08", "end": "2027-08-14", "z2": "8:15\u20138:35", "tz": "6:00\u20136:20", "total": 47.3, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 8\u00d7400 @ 1:10\u20131:15 \u2192 4\u00d7200 @ 0:40 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.9}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:15\u20138:35 /mi", "mi": 7.1}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:10\u20136:15 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:15\u20138:35 /mi", "mi": 7.1}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:15 /mi", "mi": 14.5}], "five": true}, {"n": 44, "start": "2027-08-15", "end": "2027-08-21", "z2": "8:15\u20138:35", "tz": "6:00\u20136:20", "total": 34.1, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "8:15\u20138:35 /mi", "mi": 5.9}, {"day": "Tue", "title": "Easy 50 min", "detail": "8:15\u20138:35 /mi", "mi": 5.9}, {"day": "Thu", "title": "Easy 45 min", "detail": "8:15\u20138:35 /mi", "mi": 5.3}, {"day": "Fri", "title": "Easy 50 min", "detail": "8:15\u20138:35 /mi", "mi": 5.9}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:15 /mi", "mi": 10.9}], "five": true}, {"n": 45, "start": "2027-08-22", "end": "2027-08-28", "z2": "8:15\u20138:35", "tz": "6:00\u20136:20", "total": 48.5, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 6\u00d7800 @ 2:25\u20132:35 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.7}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:15\u20138:35 /mi", "mi": 7.1}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:20\u20136:30 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:15\u20138:35 /mi", "mi": 7.1}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:15 /mi", "mi": 14.5}], "five": true}, {"n": 46, "start": "2027-08-29", "end": "2027-09-04", "z2": "8:10\u20138:30", "tz": "6:00\u20136:20", "total": 49.1, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Threshold", "detail": "WU 2 mi \u00b7 8\u00d71000 @ 3:45\u20133:50 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 9.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:10\u20138:30 /mi", "mi": 7.2}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d75k @ 6:05\u20136:10 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 10.5}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:10\u20138:30 /mi", "mi": 7.2}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:10 /mi", "mi": 14.7}], "five": true}, {"n": 47, "start": "2027-09-05", "end": "2027-09-11", "z2": "8:10\u20138:30", "tz": "6:00\u20136:20", "total": 47.6, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 8\u00d7400 @ 1:10\u20131:15 \u2192 4\u00d7200 @ 0:40 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.9}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:10\u20138:30 /mi", "mi": 7.2}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:10\u20136:15 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:10\u20138:30 /mi", "mi": 7.2}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:10 /mi", "mi": 14.7}], "five": true}, {"n": 48, "start": "2027-09-12", "end": "2027-09-18", "z2": "8:10\u20138:30", "tz": "6:00\u20136:20", "total": 34.4, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "8:10\u20138:30 /mi", "mi": 6.0}, {"day": "Tue", "title": "Easy 50 min", "detail": "8:10\u20138:30 /mi", "mi": 6.0}, {"day": "Thu", "title": "Easy 45 min", "detail": "8:10\u20138:30 /mi", "mi": 5.4}, {"day": "Fri", "title": "Easy 50 min", "detail": "8:10\u20138:30 /mi", "mi": 6.0}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:10 /mi", "mi": 11.0}], "five": true}, {"n": 49, "start": "2027-09-19", "end": "2027-09-25", "z2": "8:05\u20138:25", "tz": "6:00\u20136:20", "total": 49.1, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 6\u00d7800 @ 2:25\u20132:35 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.7}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:05\u20138:25 /mi", "mi": 7.3}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:20\u20136:30 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:05\u20138:25 /mi", "mi": 7.3}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:05 /mi", "mi": 14.8}], "five": true}, {"n": 50, "start": "2027-09-26", "end": "2027-10-02", "z2": "8:05\u20138:25", "tz": "6:00\u20136:20", "total": 49.4, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Threshold", "detail": "WU 2 mi \u00b7 8\u00d71000 @ 3:45\u20133:50 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 9.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:05\u20138:25 /mi", "mi": 7.3}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d75k @ 6:05\u20136:10 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 10.5}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:05\u20138:25 /mi", "mi": 7.3}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:05 /mi", "mi": 14.8}], "five": true}, {"n": 51, "start": "2027-10-03", "end": "2027-10-09", "z2": "8:05\u20138:25", "tz": "6:00\u20136:20", "total": 47.9, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 8\u00d7400 @ 1:10\u20131:15 \u2192 4\u00d7200 @ 0:40 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.9}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:05\u20138:25 /mi", "mi": 7.3}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:10\u20136:15 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:05\u20138:25 /mi", "mi": 7.3}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:05 /mi", "mi": 14.8}], "five": true}, {"n": 52, "start": "2027-10-10", "end": "2027-10-16", "z2": "8:00\u20138:20", "tz": "6:00\u20136:20", "total": 35.1, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "8:00\u20138:20 /mi", "mi": 6.1}, {"day": "Tue", "title": "Easy 50 min", "detail": "8:00\u20138:20 /mi", "mi": 6.1}, {"day": "Thu", "title": "Easy 45 min", "detail": "8:00\u20138:20 /mi", "mi": 5.5}, {"day": "Fri", "title": "Easy 50 min", "detail": "8:00\u20138:20 /mi", "mi": 6.1}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:00 /mi", "mi": 11.2}], "five": true}, {"n": 53, "start": "2027-10-17", "end": "2027-10-23", "z2": "8:00\u20138:20", "tz": "6:00\u20136:20", "total": 49.4, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 6\u00d7800 @ 2:25\u20132:35 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.7}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:00\u20138:20 /mi", "mi": 7.3}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:20\u20136:30 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:00\u20138:20 /mi", "mi": 7.3}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:00 /mi", "mi": 15.0}], "five": true}, {"n": 54, "start": "2027-10-24", "end": "2027-10-30", "z2": "8:00\u20138:20", "tz": "6:00\u20136:20", "total": 49.7, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Threshold", "detail": "WU 2 mi \u00b7 8\u00d71000 @ 3:45\u20133:50 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 9.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:00\u20138:20 /mi", "mi": 7.3}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d75k @ 6:05\u20136:10 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 10.5}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:00\u20138:20 /mi", "mi": 7.3}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:00 /mi", "mi": 15.0}], "five": true}, {"n": 55, "start": "2027-10-31", "end": "2027-11-06", "z2": "8:00\u20138:20", "tz": "6:00\u20136:20", "total": 48.2, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 8\u00d7400 @ 1:10\u20131:15 \u2192 4\u00d7200 @ 0:40 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.9}, {"day": "Tue", "title": "Easy 60 min", "detail": "8:00\u20138:20 /mi", "mi": 7.3}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:10\u20136:15 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "8:00\u20138:20 /mi", "mi": 7.3}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~8:00 /mi", "mi": 15.0}], "five": true}, {"n": 56, "start": "2027-11-07", "end": "2027-11-13", "z2": "7:55\u20138:15", "tz": "6:00\u20136:20", "total": 35.5, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "7:55\u20138:15 /mi", "mi": 6.2}, {"day": "Tue", "title": "Easy 50 min", "detail": "7:55\u20138:15 /mi", "mi": 6.2}, {"day": "Thu", "title": "Easy 45 min", "detail": "7:55\u20138:15 /mi", "mi": 5.6}, {"day": "Fri", "title": "Easy 50 min", "detail": "7:55\u20138:15 /mi", "mi": 6.2}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:55 /mi", "mi": 11.4}], "five": true}, {"n": 57, "start": "2027-11-14", "end": "2027-11-20", "z2": "7:55\u20138:15", "tz": "6:00\u20136:20", "total": 49.7, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 6\u00d7800 @ 2:25\u20132:35 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.7}, {"day": "Tue", "title": "Easy 60 min", "detail": "7:55\u20138:15 /mi", "mi": 7.4}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:20\u20136:30 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "7:55\u20138:15 /mi", "mi": 7.4}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:55 /mi", "mi": 15.2}], "five": true}, {"n": 58, "start": "2027-11-21", "end": "2027-11-27", "z2": "7:55\u20138:15", "tz": "6:00\u20136:20", "total": 49.4, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Threshold", "detail": "WU 2 mi \u00b7 8\u00d71000 @ 3:45\u20133:50 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 9.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "7:55\u20138:15 /mi", "mi": 7.4}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d75k @ 6:05\u20136:10 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 10.5}, {"day": "Fri", "title": "Easy 60 min", "detail": "7:55\u20138:15 /mi", "mi": 7.4}, {"day": "Sat", "title": "Long run 115 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:55 /mi", "mi": 14.5}], "five": true}, {"n": 59, "start": "2027-11-28", "end": "2027-12-04", "z2": "7:55\u20138:15", "tz": "6:00\u20136:20", "total": 48.5, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 8\u00d7400 @ 1:10\u20131:15 \u2192 4\u00d7200 @ 0:40 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.9}, {"day": "Tue", "title": "Easy 60 min", "detail": "7:55\u20138:15 /mi", "mi": 7.4}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:10\u20136:15 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "7:55\u20138:15 /mi", "mi": 7.4}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:55 /mi", "mi": 15.2}], "five": true}, {"n": 60, "start": "2027-12-05", "end": "2027-12-11", "z2": "7:55\u20138:15", "tz": "6:00\u20136:20", "total": 35.5, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "7:55\u20138:15 /mi", "mi": 6.2}, {"day": "Tue", "title": "Easy 50 min", "detail": "7:55\u20138:15 /mi", "mi": 6.2}, {"day": "Thu", "title": "Easy 45 min", "detail": "7:55\u20138:15 /mi", "mi": 5.6}, {"day": "Fri", "title": "Easy 50 min", "detail": "7:55\u20138:15 /mi", "mi": 6.2}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:55 /mi", "mi": 11.4}], "five": true}, {"n": 61, "start": "2027-12-12", "end": "2027-12-18", "z2": "7:50\u20138:10", "tz": "6:00\u20136:20", "total": 49.4, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 6\u00d7800 @ 2:25\u20132:35 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.7}, {"day": "Tue", "title": "Easy 60 min", "detail": "7:50\u20138:10 /mi", "mi": 7.5}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:20\u20136:30 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "7:50\u20138:10 /mi", "mi": 7.5}, {"day": "Sat", "title": "Long run 115 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:50 /mi", "mi": 14.7}], "five": true}, {"n": 62, "start": "2027-12-19", "end": "2027-12-25", "z2": "7:50\u20138:10", "tz": "6:00\u20136:20", "total": 49.7, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Threshold", "detail": "WU 2 mi \u00b7 8\u00d71000 @ 3:45\u20133:50 \u00b7 1:15 rest \u00b7 CD 2 mi", "mi": 9.5}, {"day": "Tue", "title": "Easy 60 min", "detail": "7:50\u20138:10 /mi", "mi": 7.5}, {"day": "Thu", "title": "Big interval", "detail": "WU 2 mi \u00b7 2\u00d75k @ 6:05\u20136:10 /mi \u00b7 5:00 rest \u00b7 CD 2 mi", "mi": 10.5}, {"day": "Fri", "title": "Easy 60 min", "detail": "7:50\u20138:10 /mi", "mi": 7.5}, {"day": "Sat", "title": "Long run 115 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:50 /mi", "mi": 14.7}], "five": true}, {"n": 63, "start": "2027-12-26", "end": "2028-01-01", "z2": "7:50\u20138:10", "tz": "6:00\u20136:20", "total": 48.8, "cut": false, "note": "", "runs": [{"day": "Mon", "title": "Speed", "detail": "WU 2 mi \u00b7 8\u00d7400 @ 1:10\u20131:15 \u2192 4\u00d7200 @ 0:40 \u00b7 1:20 rest \u00b7 CD 2 mi", "mi": 7.9}, {"day": "Tue", "title": "Easy 60 min", "detail": "7:50\u20138:10 /mi", "mi": 7.5}, {"day": "Thu", "title": "Sub-threshold", "detail": "WU 2 mi \u00b7 6\u00d71 mi @ 6:10\u20136:15 /mi \u00b7 1:30 rest \u00b7 CD 2 mi", "mi": 10.6}, {"day": "Fri", "title": "Easy 60 min", "detail": "7:50\u20138:10 /mi", "mi": 7.5}, {"day": "Sat", "title": "Long run 120 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:50 /mi", "mi": 15.3}], "five": true}, {"n": 64, "start": "2028-01-02", "end": "2028-01-08", "z2": "7:50\u20138:10", "tz": "6:00\u20136:20", "total": 35.9, "cut": true, "note": "Cutback week. Zone-2 checkpoint: run 30 min at one fixed heart rate and log the pace.", "runs": [{"day": "Mon", "title": "Easy 50 min", "detail": "7:50\u20138:10 /mi", "mi": 6.2}, {"day": "Tue", "title": "Easy 50 min", "detail": "7:50\u20138:10 /mi", "mi": 6.2}, {"day": "Thu", "title": "Easy 45 min", "detail": "7:50\u20138:10 /mi", "mi": 5.6}, {"day": "Fri", "title": "Easy 50 min", "detail": "7:50\u20138:10 /mi", "mi": 6.2}, {"day": "Sat", "title": "Long run 90 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:50 /mi", "mi": 11.5}], "five": true}, {"n": 65, "start": "2028-01-09", "end": "2028-01-15", "z2": "7:50\u20138:10", "tz": "6:00\u20136:20", "total": 49.4, "cut": false, "note": "Target: zone 2 about 8:00/mi.", "runs": [{"day": "Mon", "title": "Critical velocity", "detail": "WU 2 mi \u00b7 6\u00d7800 @ 2:25\u20132:35 \u00b7 2:00 rest \u00b7 CD 2 mi", "mi": 7.7}, {"day": "Tue", "title": "Easy 60 min", "detail": "7:50\u20138:10 /mi", "mi": 7.5}, {"day": "Thu", "title": "Tempo", "detail": "WU 2 mi \u00b7 8 mi @ 6:20\u20136:30 /mi \u00b7 CD 2 mi", "mi": 12.0}, {"day": "Fri", "title": "Easy 60 min", "detail": "7:50\u20138:10 /mi", "mi": 7.5}, {"day": "Sat", "title": "Long run 115 min", "detail": "Upper Z2 / low Z3 \u00b7 ~7:50 /mi", "mi": 14.7}], "five": true}];
+const LS2="run-checklist-v2",LS1="run-checklist-v1";
+const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DAYL={Sun:"Sunday",Mon:"Monday",Tue:"Tuesday",Wed:"Wednesday",Thu:"Thursday",Fri:"Friday",Sat:"Saturday"};
+const PUSH=["Barbell bench","Smith incline bench","Chest fly machine","Shoulder press machine","Cable tricep pushdown","Cable lateral raise","Dips"];
+const PULL=["Cable lat pulldown","Plate-loaded low row","Plate-loaded high row","Rear delt fly machine","Plate-loaded preacher curls","DB hammer curl","Assisted pull-up machine"];
+const LEGS=["Adductor","Abductor","Barbell squat","Stiff-leg deadlift","Seated leg curl","Seated leg extension","Standing calf raise","Hanging leg raise","Ab crunch machine"];
+const LIFT={Sun:["Legs",LEGS],Mon:["Push",PUSH],Tue:["Pull",PULL],Wed:["Legs",LEGS],Thu:["Push",PUSH],Fri:["Pull",PULL]};
+const RACE=new Date("2027-04-03T12:00:00");
+const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const $=id=>document.getElementById(id);
+function mk(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function dt(s){return new Date(s+"T12:00:00")}
+function fd(d,y){return MO[d.getMonth()]+" "+d.getDate()+(y?", "+d.getFullYear():"")}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function secs(p){p=String(p||"").trim();let m=/^(\d{1,2})[:.](\d{2})$/.exec(p)||/^(\d{1,2})(\d{2})$/.exec(p);return m&&+m[2]<60?(+m[1])*60+(+m[2]):null}
+function mmss(s){s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+
+/* ---------- items ---------- */
+const ITEMS={};
+WEEKS.forEach(w=>{
+  const out=[];
+  w.planned=Math.round(w.runs.reduce((a,r)=>a+r.mi,0)*10)/10;
+  w.isCk=/Zone-2 checkpoint/.test(w.note||"");
+  w.isRace=w.runs.some(r=>r.title.indexOf("RACE")===0);
+  DAYS.forEach(d=>{
+    const r=w.runs.find(x=>x.day===d);
+    if(r){const race=r.title.indexOf("RACE")===0,easy=r.title.indexOf("Easy")===0;
+      out.push({id:"w"+w.n+"-"+d,day:d,kind:race?"race":"run",wt:race?5:(easy?2:3),t:r.title,d:r.detail,mi:r.mi});}
+    const L=LIFT[d];
+    if(L){const ov=(w.lifts||{})[d];out.push({id:"w"+w.n+"-L"+d,day:d,kind:"lift",wt:2,t:ov?ov[0]:L[0],d:ov?ov[1]:"",ex:L[1],mi:0});}
+  });
+  ITEMS[w.n]=out;
+});
+
+/* ---------- state ---------- */
+let S={done:new Set(),log:{}};
+function ser(){return {done:[...S.done].sort(),log:S.log}}
+function load(o){S.done=new Set(Array.isArray(o.done)?o.done:[]);S.log=(o.log&&typeof o.log==="object")?o.log:{}}
+try{
+  const r2=localStorage.getItem(LS2);
+  if(r2)load(JSON.parse(r2));
+  else{const r1=localStorage.getItem(LS1);if(r1)load({done:JSON.parse(r1)})}
+}catch(e){}
+function seed(){if(S.done.has("seeded-v1"))return false;["w0-Mon","w0-Tue","w0-LTue","seeded-v1"].forEach(i=>S.done.add(i));return true}
+seed();
+function saveLocal(){try{localStorage.setItem(LS2,JSON.stringify(ser()))}catch(e){}}
+saveLocal();
+function save(){saveLocal()}
+
+
+/* ---------- scoring ---------- */
+function score(w){let e=0,t=0,n=0,mi=0;ITEMS[w.n].forEach(r=>{t+=r.wt;if(S.done.has(r.id)){e+=r.wt;n++;mi+=r.mi}});
+  return {s:t?Math.round(e/t*100):0,n,N:ITEMS[w.n].length,mi:Math.round(mi*10)/10}}
+function today(){const t=new Date();t.setHours(12,0,0,0);return t}
+function curWeek(){const t=today();let c=WEEKS[0];for(const w of WEEKS){if(dt(w.start)<=t)c=w}return c}
+let sel=curWeek().n;
+
+/* ---------- checkpoint logic ---------- */
+function ckEval(w){const L=S.log[w.n];if(!L)return null;const p=secs(L.pace);if(p==null)return null;
+  const hi=secs((w.z2||"").split("\u2013")[1]);if(hi==null)return null;return {p,hi,behind:p-hi}}
+function ckStreak(){ // latest consecutive pair of logged checkpoints both 10+ s behind
+  const cks=WEEKS.filter(w=>w.isCk);let prev=null,hit=null;
+  for(const w of cks){const e=ckEval(w);if(!e){prev=null;continue}
+    const bad=e.behind>=10;if(bad&&prev)hit=[prev,w];prev=bad?w:null}
+  return hit;
+}
+
+/* ---------- rendering ---------- */
+function itemEl(r){
+  const row=mk("div","it"+(r.kind==="lift"?" lift":"")+(r.kind==="race"?" racei":"")+(S.done.has(r.id)?" on":""));
+  const lab=mk("label","lbl");
+  const c=document.createElement("input");c.type="checkbox";c.className="cb";c.checked=S.done.has(r.id);
+  c.setAttribute("aria-label",DAYL[r.day]+" "+r.t);
+  c.addEventListener("change",()=>{if(c.checked)S.done.add(r.id);else S.done.delete(r.id);save();renderAll()});
+  const t=mk("div","t");t.appendChild(mk("span","k",r.kind==="lift"?"Lift":(r.kind==="race"?"Race":"Run")));t.appendChild(document.createTextNode(r.t));
+  lab.appendChild(c);lab.appendChild(t);lab.appendChild(mk("div","mi",r.mi?r.mi+" mi":""));
+  row.appendChild(lab);
+  if(r.d)row.appendChild(mk("div","d",r.d));
+  if(r.ex){const ex=mk("div","ex");r.ex.forEach(x=>ex.appendChild(mk("span","",x)));row.appendChild(ex)}
+  return row;
+}
+function renderHeader(){
+  const t=today(),days=Math.round((RACE-t)/864e5);
+  const r=$("race");r.textContent="";
+  if(days>0){r.append("Half marathon in ");const b=mk("b","",days+(days===1?" day":" days"));r.append(b," · Saturday, Apr 3, 2027")}
+  else if(days===0){r.append(mk("b","","Race day."),"  Goal about 1:40. First 3 miles at 7:45–7:50.")}
+  else r.textContent="Half marathon done on Apr 3, 2027. Building toward the zone-2 ~8:00/mi target.";
+}
+function renderStrip(){
+  const el=$("strip");el.textContent="";const max=Math.max(...WEEKS.map(w=>w.planned));const cw=curWeek().n;
+  WEEKS.forEach(w=>{const q=score(w);const b=mk("button",(w.cut?"cut":"")+(w.isRace?" racewk":"")+(w.n===cw?" cur":"")+(w.n===sel?" sel":""));
+    b.style.setProperty("--h",(18+82*w.planned/max)+"%");b.style.setProperty("--f",q.s+"%");
+    b.setAttribute("aria-label","Week "+w.n+", score "+q.s);b.title="Week "+w.n+" · "+q.s;
+    const i=document.createElement("i");b.appendChild(i);b.addEventListener("click",()=>{sel=w.n;renderAll();$("pager").scrollIntoView({behavior:"smooth"})});el.appendChild(b)});
+  const ax=$("axis");ax.textContent="";["Oct '26","Apr 3 race","Jan '28"].forEach(x=>ax.appendChild(mk("span","",x)));
+  let sum=0,cnt=0,mi=0;WEEKS.forEach(w=>{const q=score(w);mi+=q.mi;if(q.n>0){sum+=q.s;cnt++}});
+  $("nw").textContent=score(curWeek()).s;
+  const na=$("na");na.textContent=cnt?Math.round(sum/cnt):0;na.appendChild(mk("small","",cnt+(cnt===1?" wk":" wks")));
+  const nm=$("nm");nm.textContent=Math.round(mi*10)/10;nm.appendChild(mk("small","","mi"));
+}
+function renderToday(){
+  const t=today(),w=curWeek(),d=DAYS[t.getDay()];
+  $("th").textContent=DAYL[d]+", "+fd(t);
+  const inPlan=t<=dt(WEEKS[WEEKS.length-1].end);
+  $("ts").textContent=inPlan?"Week "+w.n+(w.label?" · "+w.label:(w.cut?" · cutback":"")):"The plan has finished.";
+  const tl=$("tl");tl.textContent="";
+  const its=inPlan?ITEMS[w.n].filter(r=>r.day===d):[];
+  if(!its.length){tl.appendChild(mk("div","empty",inPlan?"Rest day. Nothing scheduled.":"All 66 weeks are behind you."));return}
+  const box=mk("div");its.forEach(r=>box.appendChild(itemEl(r)));tl.appendChild(box);
+}
+function renderWarn(){
+  const h=ckStreak(),el=$("warn");el.textContent="";
+  if(h)el.appendChild(mk("div","warn","Checkpoints in weeks "+h[0].n+" and "+h[1].n+" were both 10+ sec/mi slower than predicted. The plan says to repeat the last 4 weeks before moving on."));
+}
+function renderWeek(){
+  const w=WEEKS.find(x=>x.n===sel),q=score(w),t=today(),cw=curWeek();
+  $("wn").textContent="Week "+w.n+(w.label?" · "+w.label:(w.cut?" · cutback":""));
+  $("wr").textContent=fd(dt(w.start))+" – "+fd(dt(w.end),true);
+  $("prev").disabled=w.n===WEEKS[0].n;$("next").disabled=w.n===WEEKS[WEEKS.length-1].n;
+  const el=$("week");el.textContent="";
+  const ws=mk("div","wsum");const bar=mk("div","bar");const bi=document.createElement("i");bi.style.width=q.s+"%";bar.appendChild(bi);
+  ws.appendChild(mk("span","",q.mi+" / "+w.planned+" mi"));ws.appendChild(bar);
+  ws.appendChild(mk("span","badge"+(q.s>=90?" full":(q.s<50?" lo":"")),"Score "+q.s));el.appendChild(ws);
+  const z=mk("div","zones");
+  [["Zone 2",w.z2],["Threshold",w.tz]].forEach(([l,v])=>{const b=mk("div","zone");b.appendChild(mk("div","l",l+" (/mi)"));b.appendChild(mk("div","v",v));z.appendChild(b)});el.appendChild(z);
+  if(w.note)el.appendChild(mk("div","note"+(w.isRace?" racen":""),w.note));
+  const days=mk("div","days");
+  DAYS.forEach((d,i)=>{const date=addDays(dt(w.start),i);const dy=mk("div","day"+(date.getTime()===t.getTime()?" now":""));
+    const dh=mk("div","dh");const s=mk("span");s.appendChild(mk("b","",DAYL[d]));s.appendChild(document.createTextNode(fd(date)));dh.appendChild(s);dy.appendChild(dh);
+    const its=ITEMS[w.n].filter(r=>r.day===d);
+    if(its.length){const box=mk("div");its.forEach(r=>box.appendChild(itemEl(r)));dy.appendChild(box)}else dy.appendChild(mk("div","rest","Rest"));
+    days.appendChild(dy)});
+  el.appendChild(days);
+  if(w.isCk)el.appendChild(ckEl(w));
+}
+function ckEl(w){
+  const L=S.log[w.n]||{};const box=mk("div","ck");
+  box.appendChild(mk("h3","","Zone-2 checkpoint"));
+  box.appendChild(mk("p","","30 min at one fixed heart rate. Predicted pace "+w.z2+" /mi."));
+  const f=mk("div","ckf");
+  const mkIn=(lab,key,ph,mode)=>{const l=mk("label","",lab);const i=document.createElement("input");i.value=L[key]||"";i.placeholder=ph;i.inputMode=mode;i.autocomplete="off";
+    i.addEventListener("change",()=>{let v=i.value.trim();if(key==="pace"&&secs(v)!=null)v=mmss(secs(v));const cur=S.log[w.n]||{};if(v)cur[key]=v;else delete cur[key];
+      if(Object.keys(cur).length)S.log[w.n]=cur;else delete S.log[w.n];save();renderAll()});l.appendChild(i);return l};
+  f.appendChild(mkIn("Avg pace (m:ss /mi)","pace","10:35","numeric"));
+  f.appendChild(mkIn("Heart rate (bpm)","hr","145","numeric"));
+  box.appendChild(f);
+  const e=ckEval(w);
+  if(L.pace&&secs(L.pace)==null)box.appendChild(mk("div","ckr bad","Enter pace as minutes and seconds, for example 10:35 or 1035."));
+  else if(e){const msg=e.behind>=10?e.behind+" sec/mi slower than the slow end of the range. Counts toward the repeat rule.":(e.behind>0?e.behind+" sec/mi slower than the slow end, within the 10 sec allowance.":"On or ahead of the predicted range.");
+    box.appendChild(mk("div","ckr"+(e.behind>=10?" bad":""),msg))}
+  const logged=WEEKS.filter(x=>x.isCk&&S.log[x.n]&&S.log[x.n].pace);
+  if(logged.length){const h=mk("div","hist");const tb=mk("table");const hr=mk("tr");["Week","Pace","HR","vs range"].forEach(x=>hr.appendChild(mk("th","",x)));tb.appendChild(hr);
+    logged.forEach(x=>{const ev=ckEval(x);const tr=mk("tr");[String(x.n),S.log[x.n].pace,S.log[x.n].hr||"–",ev?(ev.behind>0?"+"+ev.behind+"s":"ok"):"–"].forEach(v=>tr.appendChild(mk("td","",v)));tb.appendChild(tr)});
+    h.appendChild(mk("div","","Checkpoint history"));h.appendChild(tb);box.appendChild(h)}
+  return box;
+}
+function renderAll(){renderHeader();renderStrip();renderWarn();renderToday();renderWeek()}
+
+/* ---------- controls ---------- */
+function go(n){if(n<WEEKS[0].n||n>WEEKS[WEEKS.length-1].n)return;sel=n;renderAll()}
+$("prev").addEventListener("click",()=>go(sel-1));
+$("next").addEventListener("click",()=>go(sel+1));
+$("cur").addEventListener("click",()=>{sel=curWeek().n;renderAll();$("pager").scrollIntoView({behavior:"smooth"})});
+let sx=null,sy=null;
+$("week").addEventListener("touchstart",e=>{const p=e.touches[0];sx=p.clientX;sy=p.clientY},{passive:true});
+$("week").addEventListener("touchend",e=>{if(sx==null)return;const p=e.changedTouches[0],dx=p.clientX-sx,dy=p.clientY-sy;sx=null;
+  if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6)go(sel+(dx<0?1:-1))},{passive:true});
+let rt=null;
+$("rst").addEventListener("click",()=>{const b=$("rst");
+  if(rt){clearTimeout(rt);rt=null;b.textContent="Reset all progress";b.classList.remove("arm");S.done=new Set(["seeded-v1"]);S.log={};save();renderAll();return}
+  b.textContent="Tap again to erase everything";b.classList.add("arm");rt=setTimeout(()=>{rt=null;b.textContent="Reset all progress";b.classList.remove("arm")},3000)});
+new IntersectionObserver(([e])=>$("pager").classList.toggle("stuck",e.intersectionRatio<1),{threshold:[1],rootMargin:"-1px 0px 0px 0px"}).observe($("pager"));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)renderAll()});
+
+renderAll();
+
+/* ---------- backup ---------- */
+function bkMsg(t,bad){const e=$("bkm");e.textContent=t;e.classList.toggle("bad",!!bad)}
+$("exp").addEventListener("click",async()=>{
+  const json=JSON.stringify({v:2,saved:new Date().toISOString().slice(0,10),...ser()});
+  const code="RUNPLAN:"+btoa(unescape(encodeURIComponent(json)));
+  const ta=$("code");ta.value=code;
+  let ok=false;try{await navigator.clipboard.writeText(code);ok=true}catch(e){}
+  if(!ok){try{ta.focus();ta.select();ok=document.execCommand("copy")}catch(e){}}
+  bkMsg(ok?"Copied. Paste it into a note or email to yourself.":"Select the code in the box and copy it.");
+});
+$("imp").addEventListener("click",()=>{
+  const raw=$("code").value.trim();
+  if(!raw){bkMsg("Paste a backup code into the box first.",true);return}
+  try{
+    const o=JSON.parse(decodeURIComponent(escape(atob(raw.replace(/^RUNPLAN:/,"").replace(/\s+/g,"")))));
+    if(!Array.isArray(o.done))throw 0;
+    load({done:o.done,log:o.log});S.done.add("seeded-v1");save();sel=curWeek().n;renderAll();
+    bkMsg("Restored "+[...S.done].filter(x=>x!=="seeded-v1").length+" checked items"+(o.saved?" from a backup made "+o.saved:"")+".");
+  }catch(e){bkMsg("That code isn't a valid backup. Copy the whole code, including RUNPLAN: at the start.",true)}
+});
+
+</script></body></html>
