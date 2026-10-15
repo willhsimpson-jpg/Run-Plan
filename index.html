@@ -392,4 +392,51 @@ $("imp").addEventListener("click",()=>{
   }catch(e){bkMsg("That code isn't a valid backup. Copy the whole code, including RUNPLAN: at the start.",true)}
 });
 
+</script><style>.lg{grid-column:2/4;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mu);margin-top:4px}.lg input{width:84px;padding:6px 8px;font-size:15px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)}</style>
+<script>
+(function(){
+let K={e:1,h:1},pend=null;
+try{S.runs=JSON.parse(localStorage.getItem(LS2)).runs||{}}catch(e){S.runs={}}
+const up=w=>dt(w.end)>=today();
+const isE=r=>/^(Easy|Long)/.test(r.t);
+const adj=(w,s,f)=>f===1||!up(w)?s:s.replace(/(\d{1,2}):(\d{2})(?!\d)(?!\s*rest)/g,(m,a,b)=>mmss((+a*60+ +b)*f));
+/* predicted pace per mile (seconds) for a run, read from the plan text */
+function exp(r,w){const d=r.d||"",pr=(a,b)=>(secs(a)+secs(b||a))/2;
+  if(/^Easy/.test(r.t)){const z=(w.z2||"").split("\u2013");return z.length===2&&secs(z[0])!=null&&secs(z[1])!=null?pr(z[0],z[1]):null}
+  let m=/~(\d{1,2}:\d{2}) \/mi/.exec(d);if(m)return secs(m[1]);
+  m=/@ (\d{1,2}:\d{2})(?:\u2013(\d{1,2}:\d{2}))? \/mi/.exec(d);if(m)return pr(m[1],m[2]);
+  m=/\d+\u00d7(\d+) @ (\d{1,2}:\d{2})(?:\u2013(\d{1,2}:\d{2}))?/.exec(d);if(m)return pr(m[2],m[3])*1609.34/+m[1];
+  return null}
+/* one factor for easy+long runs+checkpoints, one for workouts: median of actual/predicted over the last 6 logs of each */
+function facs(){const E=[],H=[];
+  const add=(a,p,x)=>{p=secs(p);const q=p&&x&&p/x;if(q>.75&&q<1.4)a.push(q)};
+  WEEKS.forEach(w=>{
+    ITEMS[w.n].forEach(r=>{const g=S.runs[r.id];if(r.kind!=="run"||!g||!S.done.has(r.id)||/half|race/i.test(r.t+r.d))return;add(isE(r)?E:H,g.pace,exp(r,w))});
+    if(w.isCk&&S.log[w.n]){const z=(w.z2||"").split("\u2013");if(z.length===2)add(E,S.log[w.n].pace,(secs(z[0])+secs(z[1]))/2)}});
+  const med=a=>{const l=a.slice(-6).sort((x,y)=>x-y);if(l.length<2)return null;const k=l.length>>1,m=l.length%2?l[k]:(l[k-1]+l[k])/2,c=Math.min(1.08,Math.max(.94,m));return Math.abs(c-1)<.01?1:c};
+  const e=med(E),h=med(H);return {e:e||h||1,h:h||e||1}}
+/* saving, backup, restore, reset */
+const ser0=ser;ser=function(){return Object.assign(ser0(),{runs:S.runs})};
+const load0=load;load=function(o){load0(o);if(pend){S.runs=pend;pend=null}};
+$("imp").addEventListener("click",()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($("code").value.trim().replace(/^RUNPLAN:/,"").replace(/\s+/g,"")))));if(o.runs&&typeof o.runs==="object")pend=o.runs}catch(e){}},true);
+$("rst").addEventListener("click",()=>{if($("rst").textContent==="Reset all progress"){S.runs={};save();renderAll()}});
+/* pace box on every run (not the race) + shifted pace text */
+const item0=itemEl;
+itemEl=function(r){const row=item0(r);if(r.kind!=="run")return row;
+  const w=WEEKS.find(x=>x.n===+r.id.slice(1).split("-")[0]),d=row.querySelector(".d"),E=isE(r);
+  if(d)d.textContent=adj(w,r.d,E?K.e:K.h);
+  if(S.done.has(r.id)){const g=mk("label","lg",E?"Avg pace /mi":"Hard-rep pace /mi"),i=document.createElement("input"),x=exp(r,w);
+    i.inputMode="numeric";i.autocomplete="off";i.placeholder=x?mmss(x):"";i.value=(S.runs[r.id]||{}).pace||"";
+    i.addEventListener("change",()=>{const s=secs(i.value.trim());if(s!=null)S.runs[r.id]={pace:mmss(s)};else delete S.runs[r.id];save();renderAll()});
+    g.appendChild(i);row.appendChild(g)}
+  return row};
+const pct=f=>(f>1?"+":"")+Math.round((f-1)*1000)/10+"%";
+const week0=renderWeek;
+renderWeek=function(){week0();const w=WEEKS.find(x=>x.n===sel);if(!up(w))return;
+  document.querySelectorAll("#week .zone .v").forEach((e,i)=>{e.textContent=adj(w,e.textContent,i?K.h:K.e)});
+  if(K.e!==1||K.h!==1)document.querySelector("#week .zones").after(mk("div","note","Paces vs the original plan: easy and long runs "+pct(K.e)+", workouts "+pct(K.h)+". The race itself is unchanged."))};
+const all0=renderAll;renderAll=function(){K=facs();all0()};
+document.querySelector("details.info .b").appendChild(mk("p","","Pace shifting: check off a run, then enter its average pace (for workouts, the pace of the hard reps). Once you've logged 2 runs of a kind, upcoming paces scale by the median of your last 6 compared with the plan. Easy runs, long runs and zone-2 checkpoints set one shift, workouts set another, and each borrows the other until it has its own data. Shifts are capped at 8% slower or 6% faster and ignored under 1%. Checkpoints and the repeat rule still use the original paces."));
+renderAll();
+})();
 </script></body></html>
