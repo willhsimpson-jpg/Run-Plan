@@ -439,4 +439,69 @@ const all0=renderAll;renderAll=function(){K=facs();all0()};
 document.querySelector("details.info .b").appendChild(mk("p","","Pace shifting: check off a run, then enter its average pace (for workouts, the pace of the hard reps). Once you've logged 2 runs of a kind, upcoming paces scale by the median of your last 6 compared with the plan. Easy runs, long runs and zone-2 checkpoints set one shift, workouts set another, and each borrows the other until it has its own data. Shifts are capped at 8% slower or 6% faster and ignored under 1%. Checkpoints and the repeat rule still use the original paces."));
 renderAll();
 })();
-</script></body></html>
+</script>
+<style>.lg{grid-column:2/4;display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--mu);margin-top:4px}.lg label{display:flex;align-items:center;gap:6px}.lg input{width:72px;padding:6px 8px;font-size:15px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)}</style>
+<script>
+(function(){
+let K={e:1,h:1,b:{},w:[]},pend=null;
+const HRP=.007; /* pace change per bpm of HR: 0.7% (edit to taste) */
+try{S.runs=JSON.parse(localStorage.getItem(LS2)).runs||{}}catch(e){S.runs={}}
+const up=w=>dt(w.end)>=today();
+const isE=r=>/^(Easy|Long)/.test(r.t);
+const kind=r=>/^Easy/.test(r.t)?"e":/^Long/.test(r.t)?"l":"";
+const adj=(w,s,f)=>f===1||!up(w)?s:s.replace(/(\d{1,2}):(\d{2})(?!\d)(?!\s*rest)/g,(m,a,b)=>mmss((+a*60+ +b)*f));
+function exp(r,w){const d=r.d||"",pr=(a,b)=>(secs(a)+secs(b||a))/2;
+  if(/^Easy/.test(r.t)){const z=(w.z2||"").split("\u2013");return z.length===2&&secs(z[0])!=null&&secs(z[1])!=null?pr(z[0],z[1]):null}
+  let m=/~(\d{1,2}:\d{2}) \/mi/.exec(d);if(m)return secs(m[1]);
+  m=/@ (\d{1,2}:\d{2})(?:\u2013(\d{1,2}:\d{2}))? \/mi/.exec(d);if(m)return pr(m[1],m[2]);
+  m=/\d+\u00d7(\d+) @ (\d{1,2}:\d{2})(?:\u2013(\d{1,2}:\d{2}))?/.exec(d);if(m)return pr(m[2],m[3])*1609.34/+m[1];
+  return null}
+const md=a=>{const f=a.slice().sort((x,y)=>x-y),k=f.length>>1;return f.length?(f.length%2?f[k]:(f[k-1]+f[k])/2):null};
+/* e = shift for easy+long runs, h = shift for workouts, b = your baseline HR (median of your first 4 logged), w = HR-strain flags */
+function facs(){const E=[],H=[],L={e:[],l:[]};
+  WEEKS.forEach(w=>ITEMS[w.n].forEach(r=>{const g=S.runs[r.id],k=kind(r);if(r.kind==="run"&&k&&g&&g.hr&&S.done.has(r.id))L[k].push(+g.hr)}));
+  const b={e:L.e.length>1?md(L.e.slice(0,4)):null,l:L.l.length>1?md(L.l.slice(0,4)):null};
+  const add=(a,p,x)=>{const q=p&&x&&p/x;if(q>.75&&q<1.4)a.push(q)};
+  WEEKS.forEach(w=>{
+    ITEMS[w.n].forEach(r=>{const g=S.runs[r.id];if(r.kind!=="run"||!g||!S.done.has(r.id)||/half|race/i.test(r.t+r.d))return;
+      let p=secs(g.pace);const k=kind(r);
+      if(p&&k&&g.hr&&b[k])p/=1+HRP*Math.max(-15,Math.min(15,b[k]-g.hr));
+      add(isE(r)?E:H,p,exp(r,w))});
+    if(w.isCk&&S.log[w.n]){const z=(w.z2||"").split("\u2013");if(z.length===2)add(E,secs(S.log[w.n].pace),(secs(z[0])+secs(z[1]))/2)}});
+  const med=a=>{const l=a.slice(-6);if(l.length<2)return null;const m=md(l),c=Math.min(1.08,Math.max(.94,m));return Math.abs(c-1)<.01?1:c};
+  const e0=med(E),h0=med(H),w=[];let e=e0||h0||1,h=h0||e0||1;
+  ["e","l"].forEach(k=>{const l=L[k].slice(-3);if(b[k]&&l.length===3&&l.every(x=>x>=b[k]+6))w.push(k)});
+  if(w.length){e=Math.max(e,1);h=Math.max(h,1)}
+  return {e,h,b,w}}
+/* saving, backup, restore, reset */
+const ser0=ser;ser=function(){return Object.assign(ser0(),{runs:S.runs})};
+const load0=load;load=function(o){load0(o);if(pend){S.runs=pend;pend=null}};
+$("imp").addEventListener("click",()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($("code").value.trim().replace(/^RUNPLAN:/,"").replace(/\s+/g,"")))));if(o.runs&&typeof o.runs==="object")pend=o.runs}catch(e){}},true);
+$("rst").addEventListener("click",()=>{if($("rst").textContent==="Reset all progress"){S.runs={};save();renderAll()}});
+function setRun(id,key,v){const o=Object.assign({},S.runs[id]);if(v==null)delete o[key];else o[key]=v;if(o.pace||o.hr)S.runs[id]=o;else delete S.runs[id];save();renderAll()}
+/* pace box on every run, plus an HR box on easy and long runs */
+const item0=itemEl;
+itemEl=function(r){const row=item0(r);if(r.kind!=="run")return row;row.querySelectorAll("label.lg").forEach(x=>x.remove());
+  const w=WEEKS.find(x=>x.n===+r.id.slice(1).split("-")[0]),d=row.querySelector(".d"),E=isE(r),k=kind(r);
+  if(d)d.textContent=adj(w,r.d,E?K.e:K.h);
+  if(S.done.has(r.id)){const g=mk("div","lg"),x=exp(r,w),o=S.runs[r.id]||{};
+    const inp=(lab,key,ph,val,ok)=>{const l=mk("label","",lab),i=document.createElement("input");i.inputMode="numeric";i.autocomplete="off";i.placeholder=ph;i.value=val||"";
+      i.addEventListener("change",()=>setRun(r.id,key,ok(i.value.trim())));l.appendChild(i);g.appendChild(l)};
+    inp(E?"Avg pace /mi":"Hard-rep pace /mi","pace",x?mmss(x):"",o.pace,v=>secs(v)!=null?mmss(secs(v)):null);
+    if(k)inp("Avg HR","hr",K.b[k]?String(Math.round(K.b[k])):"bpm",o.hr,v=>/^\d{2,3}$/.test(v)&&+v>=60&&+v<=230?v:null);
+    row.appendChild(g)}
+  return row};
+const pct=f=>(f>1?"+":"")+Math.round((f-1)*1000)/10+"%";
+const week0=renderWeek;
+renderWeek=function(){week0();document.querySelectorAll("#week .note").forEach(n=>{if(/^Paces vs the original plan/.test(n.textContent))n.remove()});const w=WEEKS.find(x=>x.n===sel);if(!up(w))return;
+  document.querySelectorAll("#week .zone .v").forEach((e,i)=>{e.textContent=adj(w,i?w.tz:w.z2,i?K.h:K.e)});
+  const hb=["e","l"].filter(k=>K.b[k]).map(k=>(k==="e"?"easy ":"long ")+Math.round(K.b[k])+" bpm");
+  if(K.e!==1||K.h!==1||hb.length)document.querySelector("#week .zones").after(mk("div","note","Paces vs the original plan: easy and long runs "+pct(K.e)+", workouts "+pct(K.h)+(hb.length?". Your HR baseline: "+hb.join(", "):"")+". The race itself is unchanged."))};
+const all0=renderAll;
+renderAll=function(){K=facs();all0();
+  if(K.w.length)$("warn").appendChild(mk("div","warn","Your heart rate has been 6+ bpm above your baseline on your last 3 "+K.w.map(k=>k==="e"?"easy runs":"long runs").join(" and ")+". Paces won't speed up until that settles. Consider an easier day."))};
+document.querySelectorAll("details.info .b p").forEach(p=>{if(/^Pace shifting:/.test(p.textContent))p.remove()});document.querySelector("details.info .b").appendChild(mk("p","","Pace shifting: check off a run, then enter its average pace (for workouts, the pace of the hard reps). On easy and long runs also enter average HR. Your baseline HR for each is the median of your first 4 logged, and a run's pace is adjusted for being above or below it (0.7% per bpm, max 15 bpm), so a faster run at a higher HR doesn't count as fitness. Once you've logged 2 runs of a kind, upcoming paces scale by the median of your last 6 compared with the plan. Easy runs, long runs and zone-2 checkpoints set one shift, workouts set another, and each borrows the other until it has its own data. Shifts are capped at 8% slower or 6% faster and ignored under 1%. If your HR runs 6+ bpm above baseline for 3 runs in a row, paces won't speed up until it settles. Checkpoints and the repeat rule still use the original paces."));
+renderAll();
+})();
+</script>
+</body></html>
