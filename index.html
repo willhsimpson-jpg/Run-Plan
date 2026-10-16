@@ -873,59 +873,302 @@ renderAll();
 </script>
 <!-- END RUNPLAN ENHANCEMENT v3 -->
 <script>
+
+<!-- RUNPLAN: COMPLETE NO-RPE OVERRIDE -->
+<style>
+/* Hide RPE fields immediately, even during re-rendering */
+.rp-form label:has(input[name="rpe"]),
+.rp-form label:has(select[name="rpe"]) {
+  display: none !important;
+}
+</style>
+
+<script>
 (function () {
   "use strict";
 
-  function removeRPE() {
-    // Hide the RPE input and its label.
-    document.querySelectorAll(".rp-form label").forEach(label => {
-      if (/RPE|Effort\s*\(1/i.test(label.textContent)) {
-        label.remove();
-      }
+  if (window.RunPlanNoRPEInstalled) return;
+  window.RunPlanNoRPEInstalled = true;
+
+  const original = window.RunPlanPlus;
+
+  if (!original || typeof original.stats !== "function") {
+    console.warn(
+      "No-RPE override: RunPlanPlus must load first."
+    );
+    return;
+  }
+
+  const oldStats = original.stats;
+
+  // 1. Replace the RPE-based execution calculation.
+  function newStats(week) {
+    const s = oldStats(week);
+    if (!s) return s;
+
+    // Logging completeness:
+    // Verified workout logs / completed run checkboxes.
+    const logged = Number(s.logged) || 0;
+    const checked = Number(s.checked) || 0;
+
+    const execution = checked > 0
+      ? Math.min(100, Math.round(
+          100 * logged / checked
+        ))
+      : null;
+
+    const combined = execution === null
+      ? null
+      : Math.round(
+          0.50 * s.completion +
+          0.25 * s.volume +
+          0.25 * execution
+        );
+
+    return {
+      ...s,
+      execution,
+      combined
+    };
+  }
+
+  original.stats = newStats;
+
+  // 2. Remove RPE input fields and old fatigue warnings.
+  function cleanRPE() {
+    document.querySelectorAll(
+      '.rp-form input[name="rpe"],' +
+      '.rp-form select[name="rpe"]'
+    ).forEach(input => {
+      const label = input.closest("label");
+      if (label) label.remove();
+      else input.remove();
     });
 
-    // Hide RPE-based fatigue warnings.
     document.querySelectorAll(".rp-coach").forEach(card => {
-      if (/last two easy\/long runs were RPE/i.test(card.textContent)) {
+      if (
+        /last two easy\/long runs were RPE/i.test(
+          card.textContent
+        )
+      ) {
         card.remove();
       }
     });
 
-    // Remove RPE references from displayed descriptions.
-    document.querySelectorAll(".rp-muted").forEach(el => {
-      if (/Execution incorporates logging coverage and recorded RPE/i.test(el.textContent)) {
-        el.textContent =
-          "Workout execution and logging completeness are tracked separately.";
-      }
-    });
-
-    // Remove RPE from workout summaries.
+    // Remove RPE text from workout summaries.
     document.querySelectorAll(".rp-status").forEach(el => {
       for (const child of el.childNodes) {
-        if (child.nodeType === Node.TEXT_NODE) {
+        if (child.nodeType === 3) {
           child.textContent = child.textContent.replace(
-            /\s*·\s*RPE\s+\d+/gi, ""
+            /\s*·\s*RPE\s+\d+/gi,
+            ""
           );
         }
       }
     });
+
+    // Replace outdated scoring descriptions.
+    document.querySelectorAll(".rp-muted").forEach(el => {
+      if (
+        el.textContent.includes(
+          "Execution incorporates logging coverage"
+        )
+      ) {
+        el.textContent =
+          "Execution measures workout logging " +
+          "completeness without RPE.";
+      }
+    });
   }
 
-  // Apply after any dynamic re-render.
+  // 3. Update visible weekly scoring cards.
+  function updateWeeklyScore() {
+    document.querySelectorAll(
+      ".rp-week-score"
+    ).forEach(card => {
+      const title = card.querySelector("h3");
+      if (!title) return;
+
+      const match = title.textContent.match(/Week\s+(\d+)/);
+      if (!match) return;
+
+      const weekNumber = Number(match[1]);
+
+      const oldCard = card;
+      const summary = oldCard.querySelector(".rp-mini");
+      if (!summary) return;
+
+      // Read completion and mileage values from
+      // the original card, then replace execution.
+      const parts = [...summary.children];
+      const completion = Number(
+        parts[0]?.textContent.match(/\d+/)?.[0] || 0
+      );
+      const volume = Number(
+        parts[2]?.textContent.match(/\d+/)?.[0] || 0
+      );
+
+      const planRuns = [...document.querySelectorAll(
+        ".rp-logbox"
+      )];
+
+      const verified = planRuns.filter(box =>
+        /mi\s*·/.test(
+          box.querySelector(".rp-status")?.textContent || ""
+        )
+      ).length;
+
+      const checked = planRuns.length;
+
+      // Prefer the corrected public stats when the
+      // corresponding week object is accessible.
+      let score = null;
+
+      try {
+        if (typeof WEEKS !== "undefined") {
+          const week = WEEKS.find(
+            w => w.n === weekNumber
+          );
+          if (week) score = newStats(week);
+        }
+      } catch (e) {}
+
+      const execution = score
+        ? score.execution
+        : checked
+          ? Math.round(100 * verified / checked)
+          : null;
+
+      const composite = score
+        ? score.combined
+        : execution === null
+          ? null
+          : Math.round(
+              completion * .50 +
+              volume * .25 +
+              execution * .25
+            );
+
+      if (parts[1]) {
+        parts[1].textContent =
+          "Logging: " +
+          (execution === null ? "—" : execution + "%");
+      }
+
+      if (parts[3]) {
+        parts[3].textContent =
+          "Composite: " +
+          (composite === null ? "—" : composite);
+      }
+
+      const fill = oldCard.querySelector(".rp-meter i");
+      if (fill) {
+        fill.style.width = (composite || 0) + "%";
+      }
+
+      const description = oldCard.querySelector(".rp-muted");
+      if (description) {
+        description.textContent =
+          description.textContent.replace(
+            /25% execution/i,
+            "25% logging completeness"
+          );
+      }
+    });
+  }
+
+  // 4. Update analytics scoring columns.
+  function updateAnalytics() {
+    const page = document.getElementById("rp-pages");
+    if (!page || page.hidden) return;
+
+    const tables = page.querySelectorAll(".rp-table");
+
+    tables.forEach(table => {
+      const headers = [...table.querySelectorAll("th")]
+        .map(x => x.textContent.trim().toLowerCase());
+
+      const weekIndex = headers.indexOf("week");
+      const executionIndex = headers.indexOf("execution");
+      const compositeIndex = headers.indexOf("composite");
+
+      if (weekIndex < 0 || compositeIndex < 0) return;
+
+      const rows = [...table.querySelectorAll("tr")].slice(1);
+
+      rows.forEach(row => {
+        const cells = [...row.querySelectorAll("td")];
+        const weekNumber = Number(
+          cells[weekIndex]?.textContent
+        );
+
+        if (!Number.isInteger(weekNumber)) return;
+
+        try {
+          if (typeof WEEKS === "undefined") return;
+
+          const week = WEEKS.find(w => w.n === weekNumber);
+          if (!week) return;
+
+          const s = newStats(week);
+
+          if (executionIndex >= 0 && cells[executionIndex]) {
+            cells[executionIndex].textContent =
+              s.execution === null
+                ? "—"
+                : s.execution + "%";
+          }
+
+          if (cells[compositeIndex]) {
+            cells[compositeIndex].textContent =
+              s.combined === null
+                ? "—"
+                : s.combined + "/100";
+          }
+        } catch (e) {}
+      });
+    });
+  }
+
+  // 5. Apply the override after dynamic rendering.
+  function applyOverride() {
+    cleanRPE();
+    updateWeeklyScore();
+    updateAnalytics();
+  }
+
+  let scheduled = false;
+
   const observer = new MutationObserver(() => {
-    observer.disconnect();
-    removeRPE();
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
+    if (scheduled) return;
+
+    scheduled = true;
+
+    requestAnimationFrame(() => {
+      observer.disconnect();
+
+      applyOverride();
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
+      scheduled = false;
     });
   });
 
-  removeRPE();
+  applyOverride();
 
   observer.observe(document.body, {
     childList: true,
     subtree: true
   });
+
+  console.log(
+    "RunPlan No-RPE override activated."
+  );
 })();
-</script></body></html>
+</script>
+<!-- END NO-RPE OVERRIDE -->
+</body></html>
