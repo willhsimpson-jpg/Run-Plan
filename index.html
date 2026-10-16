@@ -872,4 +872,60 @@ renderAll();
 })();
 </script>
 <!-- END RUNPLAN ENHANCEMENT v3 -->
-</body></html>
+<script>
+(function () {
+  "use strict";
+
+  function removeRPE() {
+    // Hide the RPE input and its label.
+    document.querySelectorAll(".rp-form label").forEach(label => {
+      if (/RPE|Effort\s*\(1/i.test(label.textContent)) {
+        label.remove();
+      }
+    });
+
+    // Hide RPE-based fatigue warnings.
+    document.querySelectorAll(".rp-coach").forEach(card => {
+      if (/last two easy\/long runs were RPE/i.test(card.textContent)) {
+        card.remove();
+      }
+    });
+
+    // Remove RPE references from displayed descriptions.
+    document.querySelectorAll(".rp-muted").forEach(el => {
+      if (/Execution incorporates logging coverage and recorded RPE/i.test(el.textContent)) {
+        el.textContent =
+          "Workout execution and logging completeness are tracked separately.";
+      }
+    });
+
+    // Remove RPE from workout summaries.
+    document.querySelectorAll(".rp-status").forEach(el => {
+      for (const child of el.childNodes) {
+        if (child.nodeType === Node.TEXT_NODE) {
+          child.textContent = child.textContent.replace(
+            /\s*·\s*RPE\s+\d+/gi, ""
+          );
+        }
+      }
+    });
+  }
+
+  // Apply after any dynamic re-render.
+  const observer = new MutationObserver(() => {
+    observer.disconnect();
+    removeRPE();
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  });
+
+  removeRPE();
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script></body></html>
