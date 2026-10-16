@@ -504,4 +504,372 @@ document.querySelectorAll("details.info .b p").forEach(p=>{if(/^Pace shifting:/.
 renderAll();
 })();
 </script>
+<!-- RUNPLAN ENHANCEMENT v3: paste all of this immediately BEFORE </body></html> -->
+<style>
+/* Scoped upgrade styles; uses the site's original light/dark CSS variables. */
+.ux-tabs{display:flex;gap:7px;position:sticky;top:env(safe-area-inset-top,0px);z-index:7;padding:7px 0 12px;background:var(--bg);margin:0 0 5px}
+.pager{top:calc(env(safe-area-inset-top,0px) + 59px)}
+.ux-tabs button{flex:1;min-height:43px;border:1px solid var(--bd);background:var(--sf);border-radius:12px;font-weight:600;font-size:14px}
+.ux-tabs button[aria-selected="true"]{background:var(--ac);border-color:var(--ac);color:var(--bg)}
+body.ux-explore .ux-plan-hide{display:none!important}
+.ux-page{display:none}.ux-page.active{display:block}
+.ux-head{margin:6px 0 15px}.ux-head h2{font:700 30px/1.08 "Barlow Condensed",Barlow,sans-serif;margin:0 0 5px}.ux-head p{color:var(--mu);font-size:14px;margin:0}
+.ux-card{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:14px;margin:0 0 12px;min-width:0}
+.ux-card h3{margin:0 0 4px;font:600 22px "Barlow Condensed",Barlow,sans-serif}
+.ux-card p{font-size:13px;color:var(--mu);margin:4px 0 10px}
+.ux-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:12px}
+.ux-kpi{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:12px;min-width:0}
+.ux-kpi .ux-k{font-size:12px;color:var(--mu)}.ux-kpi strong{font:700 30px "Barlow Condensed",Barlow,sans-serif;display:block;line-height:1.12;overflow-wrap:anywhere}
+.ux-kpi small{font-size:12px;color:var(--mu)}
+.ux-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+.ux-pill{font-size:12px;background:var(--acs);color:var(--ac);border-radius:20px;padding:4px 9px;font-weight:600}
+.ux-muted{color:var(--mu);font-size:13px}.ux-green{color:var(--ac);font-weight:600}.ux-warn{color:var(--wn)}
+.ux-btn{padding:8px 11px;min-height:38px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;font-size:13px;font-weight:600}
+.ux-btn.primary{background:var(--ac);color:var(--bg);border-color:var(--ac)}
+.ux-coach{border:1px solid var(--bd);background:var(--sf);border-radius:16px;padding:12px 14px;margin-bottom:14px}
+.ux-coach summary{cursor:pointer;font-weight:600;list-style:none;min-height:26px}.ux-coach summary::-webkit-details-marker{display:none}
+.ux-coach .ux-tip{padding:10px 0;border-top:1px solid var(--bd);font-size:13px;line-height:1.5}
+.ux-coach .ux-tip:first-of-type{margin-top:10px}
+.ux-runlog{grid-column:2/4;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:7px 0 3px}
+.ux-runlog label{font-size:11px;color:var(--mu);min-width:0;display:block}
+.ux-runlog input,.ux-runlog select,.ux-input{min-width:0;width:100%;padding:8px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:15px;margin-top:3px}
+.ux-runlog .ux-wide{grid-column:1/-1;font-size:11px;color:var(--mu)}
+.ux-meter{height:8px;background:var(--sf2);border-radius:10px;overflow:hidden;margin:8px 0}
+.ux-meter i{height:100%;display:block;background:var(--ac);border-radius:10px}
+.ux-tablebox{overflow-x:auto;max-width:100%;border:1px solid var(--bd);border-radius:12px}
+.ux-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;text-align:left}
+.ux-table th,.ux-table td{padding:10px 9px;border-bottom:1px solid var(--bd);font-weight:400}
+.ux-table th{background:var(--sf2);color:var(--mu);font-weight:600;position:sticky;top:0}
+.ux-table tbody tr:last-child td{border-bottom:none}
+.ux-graph{display:block;width:100%;height:auto;overflow:visible}
+.ux-graph text{font:11px Barlow,Arial,sans-serif;fill:var(--mu)}
+.ux-filters{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.ux-filters button{border:1px solid var(--bd);background:var(--sf);padding:7px 10px;border-radius:9px;font-size:13px}
+.ux-filters button[aria-selected="true"]{background:var(--acs);color:var(--ac);border-color:var(--ac)}
+.ux-fieldgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.ux-fieldgrid label{display:block;color:var(--mu);font-size:12px}
+.ux-fieldgrid input{margin-top:3px}
+.ux-note{background:var(--sf2);padding:10px;border-radius:10px;font-size:12px;color:var(--mu);margin-top:8px}
+.ux-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;text-align:center;margin:10px 0}
+.ux-stats b{font:700 23px "Barlow Condensed",Barlow,sans-serif;display:block}
+.ux-stats small{font-size:11px;color:var(--mu)}
+.ux-details{border-top:1px solid var(--bd);padding:10px 0 0;margin-top:12px}
+.ux-details summary{cursor:pointer;font-weight:600;font-size:14px}
+@media (min-width:550px){.ux-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.ux-runlog{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:375px){.ux-tabs button{font-size:12px}.ux-runlog{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<script>
+/* Run Plan v3 add-on. Compatible with the existing globals: WEEKS, ITEMS, S, score, ser, load, renderAll, itemEl. */
+(function(){
+'use strict';
+const DAYINDEX={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+const DAYNAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const RACE_DIST={mile:1,'5k':3.10686,'10k':6.21371,half:13.1094};
+const BASELINE={mile:400,'5k':1410,'10k':2940,half:6280}; // Edit on the Predictions page.
+const emptyUX=()=>({moves:{},baseline:{...BASELINE},zlow:144,zhigh:158});
+const safeObj=x=>x&&typeof x==='object'&&!Array.isArray(x)?x:{};
+const data=()=>safeObj(S.ux);
+const originalDay=r=>r.id.split('-')[1];
+const isRun=r=>r.kind==='run'||r.kind==='race';
+const isEasy=r=>/^(Easy|Long)/.test(r.t);
+const isHard=r=>isRun(r)&&!isEasy(r);
+const round1=n=>Math.round((n+Number.EPSILON)*10)/10;
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const value=(n,fallback=0)=>Number.isFinite(+n)&&String(n).trim()!==''?+n:fallback;
+const fmt=n=>Number.isFinite(n)?round1(n).toFixed(1):'â';
+const pct=n=>Math.round(n)+'%';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dateLabel=s=>fd(dt(s),true);
+const dayDate=(w,day)=>addDays(dt(w.start),DAYINDEX[day]);
+const todayMid=()=>today().getTime();
+const sameWeek=r=>WEEKS.find(w=>ITEMS[w.n].includes(r));
+function paceTime(raw){const a=secs(raw);return Number.isFinite(a)&&a>0?a:null}
+function raceTime(s){s=Math.round(s);return s>=3600?`${Math.floor(s/3600)}:${String(Math.floor(s%3600/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`:`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`}
+function runDetails(r){return safeObj(S.runs[r.id]);}
+function distance(r){const n=value(runDetails(r).distance,NaN);return Number.isFinite(n)&&n>0?n:0}
+function avgPace(r){const o=runDetails(r);return paceTime(o.avgPace||(isEasy(r)?o.pace:null))}
+function runHR(r){const n=value(runDetails(r).hr,NaN);return Number.isFinite(n)&&n>=60&&n<=230?n:null}
+function historicalRuns(){return WEEKS.flatMap(w=>ITEMS[w.n].filter(isRun).map(r=>({w,r,date:dayDate(w,r.day)}))).sort((a,b)=>a.date-b.date)}
+function syncMoves(){for(const w of WEEKS)for(const r of ITEMS[w.n])if(isRun(r)){
+  const d=data().moves[r.id];r.day=DAYINDEX[d]!=null?d:originalDay(r);
+}}
+try{S.ux=safeObj(JSON.parse(localStorage.getItem(LS2)).ux)}catch(e){S.ux={}}
+S.ux={...emptyUX(),...S.ux,moves:safeObj(S.ux.moves),baseline:{...BASELINE,...safeObj(S.ux.baseline)}};
+syncMoves();
+/* Retain v2 compatibility: the existing export/restore still handles completed items,
+   checkpoints and pace entries. This wrapper adds additional UI settings to the same backup. */
+const oldSer=ser;ser=function(){return {...oldSer(),ux:S.ux}};
+let pendingUX=null;
+$('imp').addEventListener('click',()=>{
+  pendingUX=null;
+  try{const raw=$('code').value.trim().replace(/^RUNPLAN:/,'').replace(/\s+/g,'');
+    const o=JSON.parse(decodeURIComponent(escape(atob(raw))));
+    if(Array.isArray(o.done))pendingUX=o.ux?o.ux:emptyUX();
+  }catch(e){}
+},true);
+const oldLoad=load;load=function(o){oldLoad(o);S.ux={...emptyUX(),...safeObj(pendingUX),moves:safeObj(pendingUX&&pendingUX.moves),baseline:{...BASELINE,...safeObj(pendingUX&&pendingUX.baseline)}};pendingUX=null;syncMoves()};
+let resetting=false;
+$('rst').addEventListener('click',()=>{resetting=$('rst').classList.contains('arm')},true);
+$('rst').addEventListener('click',()=>{if(resetting){S.ux=emptyUX();syncMoves();save();renderAll()}resetting=false},false);
+
+/* Actual miles replace the former "planned miles for checked runs" calculation. */
+const oldScore=score;
+score=function(w){const b=oldScore(w),items=ITEMS[w.n],runs=items.filter(isRun),completed=runs.filter(r=>S.done.has(r.id));
+  const actual=round1(completed.reduce((sum,r)=>sum+distance(r),0));
+  let quality=0;
+  if(completed.length){const grades=completed.map(r=>{
+    const d=distance(r),p=avgPace(r),h=runHR(r);
+    const completeness=(d?40:0)+(p?35:0)+(h?25:0);
+    const compliance=d?clamp(100-110*Math.max(0,Math.abs(d/r.mi-1)-0.10),0,100):0;
+    return .5*completeness+.5*compliance;
+  });quality=Math.round(grades.reduce((a,b)=>a+b,0)/grades.length)}
+  const completion=b.s,mileage=w.planned?Math.round(clamp(actual/w.planned,0,1)*100):0;
+  // Checkbox adherence 55%, execution/log completeness 20%, actual volume 25%.
+  const smart=Math.round(.55*completion+.20*quality+.25*mileage);
+  return {...b,s:smart,mi:actual,completion,quality,mileage,completedRuns:completed.length,runCount:runs.length};
+};
+
+/* Replace the duplicated old pace/HR input wrappers with one consistent form. */
+function editRun(id,key,raw){const existing={...safeObj(S.runs[id])};let v=raw.trim();
+  if(key==='distance'){
+    if(v&&!/^\d+(?:\.\d{1,2})?$/.test(v)){alert('Distance must be a number in miles, e.g. 5.25.');return}
+    if(v&&(value(v)<=0||value(v)>100)){alert('Enter a distance between 0 and 100 miles.');return}
+    v=v?String(+v):'';
+  } else if(key==='avgPace'||key==='repPace'){
+    if(v&&!paceTime(v)){alert('Use minutes:seconds per mile, e.g. 10:35.');return}
+    v=v?mmss(paceTime(v)):'';
+  } else if(key==='hr'){
+    if(v&&(!/^\d{2,3}$/.test(v)||+v<60||+v>230)){alert('Enter average heart rate from 60â230 bpm.');return}
+  } else if(key==='rpe'){
+    if(v&&(!/^\d+$/.test(v)||+v<1||+v>10)){alert('RPE must be 1â10.');return}
+  }
+  if(v)existing[key]=v;else delete existing[key];
+  const r=WEEKS.flatMap(w=>ITEMS[w.n]).find(x=>x.id===id);
+  // Legacy pace-shifting code expects .pace to mean easy average OR hard-repetition pace.
+  if(r&&isEasy(r)&&key==='avgPace'){
+    if(v)existing.pace=v;else delete existing.pace;
+  }
+  if(r&&!isEasy(r)&&key==='repPace'){
+    if(v)existing.pace=v;else delete existing.pace;
+  }
+  if(Object.keys(existing).length)S.runs[id]=existing;else delete S.runs[id];
+  save();renderAll();
+}
+const previousItemEl=itemEl;
+itemEl=function(r){const row=previousItemEl(r);if(!isRun(r))return row;
+  row.querySelectorAll('.lg').forEach(n=>n.remove());
+  const o=runDetails(r),g=mk('div','ux-runlog');
+  const inp=(label,key,placeholder,existing)=>{const l=document.createElement('label');l.textContent=label;
+    const i=document.createElement('input');i.type='text';i.inputMode='decimal';i.placeholder=placeholder;i.autocomplete='off';
+    i.value=existing==null?'':String(existing);i.setAttribute('aria-label',`${label} for ${r.t}`);
+    i.addEventListener('change',()=>editRun(r.id,key,i.value));l.appendChild(i);g.appendChild(l)};
+  inp('Distance (mi)','distance',String(r.mi),o.distance);
+  inp('Average pace /mi','avgPace','10:30',o.avgPace||(isEasy(r)?o.pace:''));
+  inp('Average HR','hr','150',o.hr);
+  if(isHard(r))inp('Hard-rep pace','repPace','7:30',o.repPace||o.pace);
+  const effort=document.createElement('label');effort.textContent='Effort (optional)';
+  const select=document.createElement('select');select.setAttribute('aria-label','Effort rating for '+r.t);
+  select.innerHTML='<option value="">RPE â</option>'+Array.from({length:10},(_,i)=>`<option value="${i+1}">${i+1}/10</option>`).join('');
+  select.value=o.rpe||'';select.addEventListener('change',()=>editRun(r.id,'rpe',select.value));effort.appendChild(select);g.appendChild(effort);
+  if(!S.done.has(r.id))g.appendChild(mk('div','ux-wide','Log metrics anytime; check the box to count this run toward completed mileage.'));
+  row.appendChild(g);return row;
+};
+
+/* Navigation: home checklist remains intact, new analytics and prediction pages are separate. */
+const menu=document.createElement('nav');menu.className='ux-tabs';menu.setAttribute('aria-label','Run plan pages');
+menu.innerHTML='<button type="button" data-view="plan" aria-selected="true">Plan</button><button type="button" data-view="analytics" aria-selected="false">Analytics</button><button type="button" data-view="predictions" aria-selected="false">Predictions</button>';
+const anchor=$('race');anchor.after(menu);
+const page=document.createElement('main');page.id='ux-page';page.className='ux-page';menu.after(page);
+for(const child of [...document.querySelector('.wrap').children]){
+  if(child===menu||child===page||child===document.querySelector('.top')||child===anchor)continue;
+  child.classList.add('ux-plan-hide');
+}
+let activeView='plan',activePanel='overview',runFilter='all';
+function switchView(v){activeView=v;document.body.classList.toggle('ux-explore',v!=='plan');
+  page.classList.toggle('active',v!=='plan');menu.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.view===v)));
+  renderExtras();window.scrollTo({top:0,behavior:'instant'});
+}
+menu.addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(b)switchView(b.dataset.view)});
+function card(title,sub=''){const n=mk('section','ux-card');n.appendChild(mk('h3','',title));if(sub)n.appendChild(mk('p','',sub));return n}
+function kpi(t,n,detail){return `<div class="ux-kpi"><span class="ux-k">${esc(t)}</span><strong>${esc(n)}</strong><small>${esc(detail)}</small></div>`}
+function table(headers,rows){return `<div class="ux-tablebox"><table class="ux-table"><thead><tr>${headers.map(s=>'<th>'+esc(s)+'</th>').join('')}</tr></thead><tbody>${rows.length?rows.map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join(''):`<tr><td colspan="${headers.length}" class="ux-muted">No entries yet</td></tr>`}</tbody></table></div>`}
+function chart(points,{label='Value',higherIsBetter=true,unit='',valueFormatter=null,minBound=null,maxBound=null,goal=null}={}){
+  if(!points.length)return '<div class="ux-note">Not enough logged data to graph yet.</div>';
+  const W=590,H=205,x0=49,y0=15,r=14,b=29;
+  const ys=points.map(p=>p.y).filter(Number.isFinite);if(goal!=null&&Number.isFinite(goal))ys.push(goal);if(!ys.length)return '<div class="ux-note">No data yet.</div>';
+  let lo=minBound!=null?minBound:Math.min(...ys),hi=maxBound!=null?maxBound:Math.max(...ys);
+  const diff=Math.max(hi-lo,1);if(minBound==null)lo-=diff*.12;if(maxBound==null)hi+=diff*.12;
+  const x=i=>x0+i*(W-x0-r)/Math.max(1,points.length-1),y=n=>y0+(hi-n)/(hi-lo)*(H-y0-b);
+  const f=valueFormatter||((v)=>round1(v)+unit);
+  const lines=[0,.5,1].map(t=>{const yy=y(lo+(hi-lo)*t);return `<line x1="${x0}" x2="${W-r}" y1="${yy}" y2="${yy}" stroke="var(--bd)" stroke-dasharray="3 4"/><text x="${x0-7}" y="${yy+4}" text-anchor="end">${esc(f(lo+(hi-lo)*t))}</text>`}).join('');
+  const path=points.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(p.y).toFixed(1)}`).join(' ');
+  const goalLine=goal==null?'':`<line x1="${x0}" x2="${W-r}" y1="${y(goal)}" y2="${y(goal)}" stroke="var(--wn)" stroke-width="2" stroke-dasharray="6 4"/><text x="${W-r}" y="${Math.max(10,y(goal)-5)}" text-anchor="end" fill="var(--wn)">8:00 goal</text>`;
+  const dots=points.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p.y)}" r="4" fill="var(--ac)"><title>${esc(p.x)}: ${esc(f(p.y))}</title></circle>`).join('');
+  const tags=[0,Math.floor((points.length-1)/2),points.length-1].filter((v,i,a)=>a.indexOf(v)===i).map(i=>`<text x="${x(i)}" y="${H-5}" text-anchor="middle">${esc(points[i].x)}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ux-graph" role="img" aria-label="${esc(label)} chart"><title>${esc(label)}</title>${lines}${goalLine}<path d="${path}" fill="none" stroke="var(--ac)" stroke-width="3" stroke-linejoin="round"/>${dots}${tags}</svg>`;
+}
+function bars(rows){if(!rows.length)return '<div class="ux-note">No completed weeks yet.</div>';
+  const max=Math.max(1,...rows.map(w=>Math.max(w.planned,w.actual)));
+  return `<div style="display:flex;gap:5px;align-items:flex-end;min-height:158px;padding:10px 1px 0">${rows.map(w=>{
+    const h1=Math.max(2,125*w.planned/max),h2=Math.max(0,125*w.actual/max);
+    return `<div style="flex:1;min-width:0;text-align:center" title="Week ${w.n}: ${fmt(w.actual)} / ${fmt(w.planned)} mi"><div style="height:128px;display:flex;align-items:flex-end;gap:2px;justify-content:center"><div style="width:45%;height:${h1}px;background:var(--sf2);border:1px solid var(--bd);border-radius:3px 3px 0 0"></div><div style="width:45%;height:${h2}px;background:var(--ac);border-radius:3px 3px 0 0"></div></div><span style="font-size:10px;color:var(--mu)">${w.n}</span></div>`}).join('')}</div><div class="ux-muted">Gray: planned Â· Green: actual Â· Week number along bottom</div>`}
+function weekMileage(){return WEEKS.map(w=>({...w,actual:score(w).mi,doneRun:ITEMS[w.n].some(r=>isRun(r)&&S.done.has(r.id))}))}
+function loggedSessions(){return historicalRuns().filter(({r})=>S.done.has(r.id)&&distance(r)>0)}
+function checkpoints(){return WEEKS.filter(w=>w.isCk&&paceTime(safeObj(S.log[w.n]).pace)).map(w=>({w,pace:paceTime(S.log[w.n].pace),hr:value(S.log[w.n].hr,0)}))}
+function monthData(){const m={};for(const w of WEEKS)for(const r of ITEMS[w.n].filter(isRun)){
+  const day=dayDate(w,r.day),id=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}`;
+  if(!m[id])m[id]={month:id,planned:0,actual:0,runCount:0};
+  m[id].planned+=r.mi;if(S.done.has(r.id)){m[id].actual+=distance(r);m[id].runCount++}
+}return Object.values(m).map(z=>({...z,planned:round1(z.planned),actual:round1(z.actual)}))}
+function currentMonth(){const t=today();return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}`}
+function renderAnalytics(){page.innerHTML='';
+  const h=mk('header','ux-head');h.innerHTML='<h2>Running analytics</h2><p>Actual logged performances, volume and training consistency.</p>';page.appendChild(h);
+  const weeks=weekMileage(),sessions=loggedSessions(),actual=round1(weeks.reduce((s,w)=>s+w.actual,0)),plan=round1(weeks.reduce((s,w)=>s+w.planned,0));
+  const c=curWeek(),cw=score(c),mo=monthData().find(x=>x.month===currentMonth())||{actual:0,planned:0};
+  const sum=mk('div','ux-kpis');sum.innerHTML=kpi('This week',fmt(cw.mi)+' mi',`${fmt(c.planned)} mi planned`)+kpi('This month',fmt(mo.actual)+' mi',`${fmt(mo.planned)} mi planned`)+kpi('Total logged',fmt(actual)+' mi',`${sessions.length} logged sessions`)+kpi('Complete run logs',String(sessions.filter(({r})=>avgPace(r)&&runHR(r)).length),`${sessions.length} with recorded distance`);page.appendChild(sum);
+  const filters=mk('div','ux-filters');filters.setAttribute('aria-label','Analytics sections');
+  for(const [v,t] of [['overview','Overview'],['volume','Mileage'],['aerobic','Zone 2'],['sessions','Sessions'],['scores','Scoring']]){
+    const b=mk('button','',t);b.type='button';b.setAttribute('aria-selected',String(activePanel===v));b.addEventListener('click',()=>{activePanel=v;renderAnalytics()});filters.appendChild(b)
+  }page.appendChild(filters);
+  if(activePanel==='overview'){
+    let s=card('Recent training volume','The last 12 elapsed or current training weeks. Actual miles require a completed checkbox and an entered distance.');
+    const past=weeks.filter(w=>dt(w.start)<=today()).slice(-12);s.innerHTML+=bars(past);page.appendChild(s);
+    const z=checkpoints();s=card('Aerobic checkpoints','30-minute tests at a fixed heart rate; a slower pace means a larger seconds-per-mile value.');
+    s.innerHTML+=chart(z.map(x=>({x:'W'+x.w.n,y:x.pace})),{label:'Checkpoint pace',valueFormatter:n=>mmss(n),goal:480});page.appendChild(s);
+    const scores=weeks.filter(w=>dt(w.start)<=today()).slice(-12).map(w=>({x:'W'+w.n,y:score(w).s}));
+    s=card('Smart scores','Completion 55% Â· execution and recording 20% Â· actual mileage 25%.');s.innerHTML+=chart(scores,{label:'Weekly smart score',unit:'%',minBound:0,maxBound:100});page.appendChild(s);
+  }else if(activePanel==='volume'){
+    let s=card('Weekly mileage','Gray planned vs. green actual. Only logged, completed distances count as actual.');s.innerHTML+=bars(weeks.filter(w=>dt(w.start)<=today()).slice(-16));page.appendChild(s);
+    const months=monthData().filter(x=>x.month<=currentMonth());s=card('Monthly mileage','Includes planned mileage on dates within each calendar month, not approximate week-based grouping.');
+    s.innerHTML+=table(['Month','Actual','Planned','% plan','Runs'],months.map(x=>[x.month,fmt(x.actual),fmt(x.planned),pct(x.planned?100*x.actual/x.planned:0),x.runCount]));page.appendChild(s);
+    s=card('Cumulative distance','Total actual mileage increases only when distances are logged.');let cm=0;
+    s.innerHTML+=chart(weeks.filter(w=>dt(w.start)<=today()).map(w=>({x:'W'+w.n,y:cm+=w.actual})),{label:'Cumulative actual miles',unit:' mi'});page.appendChild(s);
+  }else if(activePanel==='aerobic'){
+    let s=card('Zone 2 settings','Used to filter comparable easy sessions, not to change your prescribed training zones.');
+    s.innerHTML+=`<div class="ux-fieldgrid"><label>Lower HR bound<input class="ux-input" id="ux-zlow" type="number" min="90" max="200" value="${value(data().zlow,144)}"></label><label>Upper HR bound<input class="ux-input" id="ux-zhigh" type="number" min="90" max="210" value="${value(data().zhigh,158)}"></label></div><div class="ux-note">Only completed easy/long runs within this heart-rate band are shown in the comparison chart. Terrain, temperature and duration can still affect comparisons.</div>`;page.appendChild(s);
+    for(const [key] of [['zlow'],['zhigh']])$("ux-"+key).addEventListener('change',e=>{const v=+e.target.value;if(v>=90&&v<=210){S.ux[key]=v;save();renderAnalytics()}});
+    const z=checkpoints();s=card('Fixed-HR checkpoint progression',`Tests recorded: ${z.length}. Faster pace is a lower time per mile.`);
+    s.innerHTML+=chart(z.map(x=>({x:'W'+x.w.n,y:x.pace})),{label:'Fixed-HR checkpoint pace',valueFormatter:n=>mmss(n),goal:480});
+    s.innerHTML+=table(['Week','Date','Pace','Avg HR'],z.map(x=>['W'+x.w.n,dateLabel(x.w.end),mmss(x.pace),x.hr?x.hr+' bpm':'â']));page.appendChild(s);
+    const lo=value(S.ux.zlow,144),hi=value(S.ux.zhigh,158);
+    const easy=sessions.filter(({r})=>isEasy(r)&&avgPace(r)&&runHR(r)>=lo&&runHR(r)<=hi);
+    s=card('Easy-run pace inside HR range',`${easy.length} sessions in your selected ${lo}â${hi} bpm range. Not automatically treated as standardized checkpoint tests.`);
+    s.innerHTML+=chart(easy.map(({w,r})=>({x:'W'+w.n,y:avgPace(r)})),{label:'Easy pace at Zone 2 HR',valueFormatter:n=>mmss(n),goal:480});page.appendChild(s);
+  }else if(activePanel==='sessions'){
+    const s=card('Logged running sessions','Your completed runs with entered distance. Add missing pace/HR from the Plan page.');
+    const fs=mk('div','ux-filters');for(const k of ['all','easy','long','hard']){
+      const b=mk('button','',k[0].toUpperCase()+k.slice(1));b.setAttribute('aria-selected',String(runFilter===k));b.addEventListener('click',()=>{runFilter=k;renderAnalytics()});fs.appendChild(b)
+    }s.appendChild(fs);
+    const list=sessions.filter(({r})=>runFilter==='all'||(runFilter==='easy'&&/^Easy/.test(r.t))||(runFilter==='long'&&/^Long/.test(r.t))||(runFilter==='hard'&&isHard(r))).reverse();
+    s.insertAdjacentHTML('beforeend',table(['Date','Workout','Miles','Avg pace','Avg HR','Effort'],list.map(({date,r})=>[fd(date,true),r.t,fmt(distance(r)),avgPace(r)?mmss(avgPace(r)):'â',runHR(r)?runHR(r)+' bpm':'â',runDetails(r).rpe?runDetails(r).rpe+'/10':'â'])));page.appendChild(s);
+  }else if(activePanel==='scores'){
+    let s=card('What the smart score measures','No points are awarded for running faster than the prescribed pace.');
+    s.innerHTML+='<p><b>55% completion:</b> original weighted checkbox score. <b>20% execution:</b> recorded distance, pace, HR and distance near the intended workout. <b>25% volume:</b> completed actual miles Ã· planned miles (capped at 100%). Missing log values lower the score but can always be filled in later.</p>';page.appendChild(s);
+    const ws=weeks.filter(w=>dt(w.start)<=today()).slice(-16);s=card('Per-week score breakdown');s.innerHTML+=table(['Week','Completion','Execution','Mileage','Smart'],ws.map(w=>{const q=score(w);return ['W'+w.n,pct(q.completion),pct(q.quality),pct(q.mileage),pct(q.s)]}));page.appendChild(s);
+    s=card('Smart score trend');s.innerHTML+=chart(ws.map(w=>({x:'W'+w.n,y:score(w).s})),{label:'Smart score trend',unit:'%',minBound:0,maxBound:100});page.appendChild(s);
+  }
+}
+
+/* Forecast model: explicitly a conditional scenario, not a fitted predictive model. */
+function aerobicGain(asOf){const c=checkpoints().filter(x=>dt(x.w.end)<=asOf&&x.hr);
+  if(c.length<2)return 0;
+  const first=c[0],last=c[c.length-1];if(Math.abs(first.hr-last.hr)>3)return 0;
+  const improvement=(first.pace-last.pace)/first.pace;
+  return clamp(improvement*.25,-.04,.04);
+}
+function projection(w,key){const blocks=Math.max(0,w.n/4);
+  const trend=0.006*blocks/(1+0.035*blocks); // ~0.6% early block improvement, tapering over time
+  const completed=weekMileage().filter(x=>dt(x.end)<today()&&dt(x.end)<=dt(w.end)&&x.n>0);
+  // No completed weeks = show a default 90% adherence assumption, not falsely measured data.
+  const adherence=completed.length?clamp(completed.reduce((a,b)=>a+clamp(b.actual/b.planned,0,1),0)/completed.length,.55,1):.9;
+  const gain=clamp(trend*(0.55+0.45*adherence)+aerobicGain(dt(w.end)), -.04,.18);
+  const base=value(data().baseline[key],BASELINE[key]);
+  return Math.max(1,Math.round(base*(1-gain)));
+}
+function renderPredictions(){page.innerHTML='';const head=mk('header','ux-head');
+  head.innerHTML='<h2>Race predictions</h2><p>Cutback-by-cutback planning scenarios for the mile, 5K, 10K and half marathon.</p>';page.appendChild(head);
+  let s=card('Race baseline times','Your supplied baseline PRs are prefilled. Change these to your current verified times. Saving a baseline updates the entire forecast.');
+  s.innerHTML+='<div class="ux-fieldgrid">'+[['mile','Mile'],['5k','5K'],['10k','10K'],['half','Half marathon']].map(([k,l])=>`<label>${l}<input type="text" class="ux-input" data-baseline="${k}" value="${raceTime(value(data().baseline[k],BASELINE[k]))}" placeholder="m:ss or h:mm:ss"></label>`).join('')+'</div><div class="ux-note">The predictions are intentionally conservative, heuristic scenariosânot statistically calibrated forecasts or guarantees. Training quality, injuries, environment and race-specific work may change outcomes substantially.</div>';page.appendChild(s);
+  s.querySelectorAll('[data-baseline]').forEach(inp=>inp.addEventListener('change',()=>{
+    const p=parseRaceTime(inp.value);if(p==null){alert('Enter m:ss or h:mm:ss.');renderPredictions();return}
+    S.ux.baseline[inp.dataset.baseline]=p;save();renderPredictions();
+  }));
+  const cuts=WEEKS.filter(w=>w.cut&&w.isCk);
+  const future=cuts.find(w=>dt(w.end)>=today())||cuts[cuts.length-1];
+  const n=mk('div','ux-kpis');
+  n.innerHTML=kpi('Next checkpoint',future?'Week '+future.n:'â',future?dateLabel(future.end):'Finished')+
+    kpi('Mile',future?raceTime(projection(future,'mile')):'â','Estimated')+
+    kpi('5K',future?raceTime(projection(future,'5k')):'â','Estimated')+
+    kpi('Half',future?raceTime(projection(future,'half')):'â','Estimated');page.appendChild(n);
+  s=card('Projections after every cutback','Dates, cumulative planned miles and four estimated race performances. Completed miles are reported separately in Analytics.');
+  s.innerHTML+=table(['Week','Checkpoint','Planned milesÂ¹','Mile','5K','10K','Half'],cuts.map(w=>{
+    const miles=round1(WEEKS.filter(x=>x.n<=w.n).reduce((sum,x)=>sum+x.planned,0));
+    return ['W'+w.n,dateLabel(w.end),fmt(miles),...['mile','5k','10k','half'].map(k=>raceTime(projection(w,k)))]
+  }));s.innerHTML+='<p>Â¹ Cumulative scheduled miles from Week 0 through each checkpoint, including future weeks. This is <b>not</b> a prediction of miles you will actually complete.</p>';page.appendChild(s);
+  s=card('Trend of the four projected race times','Indexed to your current baseline = 100%. Lower is faster; each race has its own baseline.');
+  for(const [key,label] of [['mile','Mile'],['5k','5K'],['10k','10K'],['half','Half marathon']]){
+    const details=document.createElement('details');details.className='ux-details';details.open=key==='half';
+    details.innerHTML=`<summary>${label} progression</summary>`+chart(cuts.map(w=>({x:'W'+w.n,y:100*projection(w,key)/value(data().baseline[key],BASELINE[key])})),{label:label+' estimated performance index',unit:'%',minBound:86,maxBound:104});s.appendChild(details)
+  }page.appendChild(s);
+  s=card('How the numbers work','A transparent scenario rather than a black-box performance claim.');
+  s.innerHTML+='<p>Each four-week block assumes a small improvement that gradually diminishes across the plan. The model lowers expected gains if recorded weekly mileage is below plan; absent prior weeks, it uses a clearly labeled 90% assumption. A comparison of fixed-HR checkpoints can adjust estimates modestly only when their average HR differs by no more than 3 bpm.</p><p>The model does not know your maximum speed, lactate threshold, weather, injuries, race-specific readiness or long-term physiological ceiling. Use your actual race results to recalibrate the baseline fields. Do not use these times to force workouts faster.</p>';page.appendChild(s);
+}
+function parseRaceTime(s){const parts=String(s).trim().split(':');if(parts.length<2||parts.length>3||parts.some(x=>!/^\d+$/.test(x)))return null;
+  if(parts.slice(1).some(x=>+x>=60))return null;
+  const total=parts.reduce((v,x)=>v*60+ +x,0);return total>=60&&total<86400?total:null;
+}
+
+/* Real, reversible in-week rescheduling: user must click "Move". */
+function suggestion(){const w=curWeek(),moves=[],missed=ITEMS[w.n].filter(r=>isRun(r)&&r.kind!=='race'&&!S.done.has(r.id)&&dayDate(w,r.day).getTime()<todayMid());
+  for(const r of missed){if(dayDate(w,r.day).getTime()>=todayMid())continue;
+    let target=null;
+    for(const d of DAYNAMES){if(dayDate(w,d)<today())continue;
+      const busy=ITEMS[w.n].some(z=>z.id!==r.id&&isRun(z)&&z.day===d);
+      if(busy)continue;
+      if(isHard(r)){
+        const hasNear=ITEMS[w.n].some(z=>z.id!==r.id&&isRun(z)&&(isHard(z)||/^Long/.test(z.t))&&Math.abs(DAYINDEX[z.day]-DAYINDEX[d])<=1);
+        if(hasNear)continue;
+      }
+      target=d;break;
+    }
+    moves.push({r,target});
+  }
+  return {w,moves};
+}
+function renderCoach(){const old=$('ux-coach');if(old)old.remove();const {w,moves}=suggestion();
+  const el=document.createElement('details');el.id='ux-coach';el.className='ux-coach ux-plan-hide';
+  el.innerHTML='<summary>Adaptive schedule & training flags'+(moves.length?' Â· '+moves.length+' missed runs':'')+'</summary>';
+  const body=mk('div');let has=false;
+  for(const {r,target} of moves){has=true;
+    const tip=mk('div','ux-tip');tip.appendChild(mk('div','','Missed: '+r.t+' ('+r.day+'). '));
+    if(target){tip.appendChild(mk('div','ux-muted','Possible make-up: '+target+'. The originally planned training volume stays unchanged.'));
+      const b=mk('button','ux-btn primary','Move to '+target);b.type='button';b.addEventListener('click',()=>{
+        S.ux.moves[r.id]=target;syncMoves();save();renderAll();
+      });tip.appendChild(b);
+    }else tip.appendChild(mk('div','ux-warn','No suitable empty day left this week. Consider skipping, rather than squeezing two runs into a day.'));
+    body.appendChild(tip);
+  }
+  const es=historicalRuns().filter(({r,date})=>isEasy(r)&&date<=today()&&S.done.has(r.id)&&runHR(r));
+  if(es.length>=7){const first=es.slice(0,4).map(({r})=>runHR(r)).sort((a,b)=>a-b),base=(first[1]+first[2])/2;
+    const recent=es.slice(-3).map(({r})=>runHR(r));
+    if(recent.every(x=>x>=base+6)){has=true;body.appendChild(mk('div','ux-tip ux-warn','Recent easy/long HR is at least 6 bpm over your early baseline for three sessions. Check fatigue, heat and conditions before the next hard workout.'))}
+  }
+  const cps=checkpoints();if(cps.length>=2){const a=cps[cps.length-2],b=cps[cps.length-1];
+    if(Math.abs(a.hr-b.hr)<=3&&b.pace>=a.pace-5){has=true;body.appendChild(mk('div','ux-tip','Two comparable checkpoints show less than five seconds/mile improvement. Review recovery and training consistency before increasing intensity.'))}
+  }
+  if(Object.keys(S.ux.moves).length){has=true;const tip=mk('div','ux-tip');tip.appendChild(mk('div','','Manual schedule changes: '+Object.keys(S.ux.moves).length));
+    const b=mk('button','ux-btn','Restore original scheduled days');b.type='button';b.addEventListener('click',()=>{if(confirm('Restore all moved runs to their originally planned days?')){S.ux.moves={};syncMoves();save();renderAll()}});
+    tip.appendChild(b);body.appendChild(tip)
+  }
+  if(!has)body.appendChild(mk('div','ux-tip','No actionable rescheduling or fatigue flags. Current workouts remain unchanged.'));
+  const note=mk('div','ux-note','Rescheduling is always optional, never automatic. Only runs within the current week can be proposed. The plan does not automatically increase mileage or move race dates.');body.appendChild(note);
+  el.appendChild(body);$('warn').before(el);
+}
+function renderExtras(){if(activeView==='analytics')renderAnalytics();else if(activeView==='predictions')renderPredictions()}
+const beforeAll=renderAll;
+renderAll=function(){syncMoves();beforeAll();renderCoach();if(activeView!=='plan')renderExtras()};
+renderAll();
+})();
+</script>
+<!-- END RUNPLAN ENHANCEMENT v3 -->
 </body></html>
